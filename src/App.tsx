@@ -837,6 +837,24 @@ export default function App() {
       setSelectedTopicDashboard(null);
     }
 
+    // Clean up student analysis records of deleted courses from the owner portal / educator desk
+    const activeCourseIds = newCourses.map(c => c.id);
+    const filteredRecords = studentAnalysisRecords.filter(r => activeCourseIds.includes(r.courseId));
+    if (filteredRecords.length !== studentAnalysisRecords.length) {
+      handleUpdateStudentAnalysisRecords(filteredRecords);
+    }
+
+    // Clean up purchased courses lists on the device storage / progress
+    if (progress && progress.purchasedCourses) {
+      const filteredPurchased = progress.purchasedCourses.filter(id => activeCourseIds.includes(id));
+      if (filteredPurchased.length !== progress.purchasedCourses.length) {
+        saveProgressState({
+          ...progress,
+          purchasedCourses: filteredPurchased
+        });
+      }
+    }
+
     try {
       const res = await fetch('/api/courses', {
         method: 'POST',
