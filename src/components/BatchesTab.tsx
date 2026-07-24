@@ -781,19 +781,15 @@ export default function BatchesTab({
 
                 {/* Large Playlist Thumbnail Image */}
                 <div className="w-full aspect-video rounded-2xl bg-zinc-900 border border-zinc-850 overflow-hidden relative shadow-md select-none">
-                  {selectedCourse.thumbnailUrl ? (
-                    <img 
-                      src={selectedCourse.thumbnailUrl} 
-                      alt={selectedCourse.title} 
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-tr from-orange-600/20 via-zinc-900 to-emerald-600/20 flex flex-col items-center justify-center p-4">
-                      <Video className="w-8 h-8 text-zinc-400 animate-pulse" />
-                      <span className="text-[9px] font-mono font-bold tracking-widest text-zinc-500 uppercase mt-2">BHARAT GURUKUL</span>
-                    </div>
-                  )}
+                  <img 
+                    src={getProxiedImageUrl(selectedCourse.thumbnailUrl)} 
+                    alt={selectedCourse.title} 
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getProxiedImageUrl(undefined);
+                    }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
                     <span className="text-[10px] bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-md text-white font-mono font-bold border border-white/10 uppercase tracking-widest">
                       📚 PLAYLIST
@@ -953,9 +949,7 @@ export default function BatchesTab({
               </p>
             </div>
 
-            <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 flex items-center justify-center bg-zinc-900/40 rounded-full border border-zinc-850 p-2">
-              <ThreeDElement type="books_bundle_3d" className="w-full h-full" />
-            </div>
+            {/* Banner Content */}
           </div>
 
           {/* Embedded Search and Toggleable Filter Bar */}

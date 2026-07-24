@@ -460,8 +460,8 @@ export default function AIAssistant({
   const BharatRobotAvatar = ({ className = "w-16 h-16" }: { className?: string }) => (
     <div className={`relative flex items-center justify-center select-none ${className}`}>
       {/* Premium Glow Aura */}
-      <div className="absolute -inset-3 rounded-full bg-[#14b8a6]/15 opacity-60 blur-[8px] animate-pulse"></div>
-      <ThreeDElement type="robot_3d_assistant" className="w-full h-full relative z-10" />
+      <div className="absolute -inset-3 rounded-full bg-[#14b8a6]/20 opacity-70 blur-[10px] animate-pulse"></div>
+      <ThreeDElement type="futuristic_ai_robot" className="w-full h-full relative z-10" autoRotate={true} interactive={true} />
     </div>
   );
 

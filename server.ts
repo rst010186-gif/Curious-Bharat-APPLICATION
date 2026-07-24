@@ -78,7 +78,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-// Proxy and resolve Google Photos and Google Drive links to direct images
+// Proxy and resolve Google Photos, Google Drive, and external links directly to image binary data
 app.get('/api/proxy-image', async (req, res) => {
   try {
     const rawUrl = req.query.url as string;
@@ -86,7 +86,8 @@ app.get('/api/proxy-image', async (req, res) => {
       return res.status(400).send('Missing url parameter');
     }
 
-    const url = decodeURIComponent(rawUrl).trim();
+    let url = decodeURIComponent(rawUrl).trim();
+    let targetImageUrl = url;
 
     // 1. Google Drive Link Handling
     if (url.includes('drive.google.com')) {
@@ -102,49 +103,69 @@ app.get('/api/proxy-image', async (req, res) => {
       }
 
       if (fileId) {
-        return res.redirect(`https://lh3.googleusercontent.com/d/${fileId}`);
+        targetImageUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
       }
     }
 
     // 2. Google Photos Link Handling
-    if (url.includes('photos.app.goo.gl') || url.includes('photos.google.com') || url.includes('googleusercontent.com')) {
-      // If it's already a direct Google photos url with sizing parameters, redirect to it directly
-      if (url.includes('lh3.googleusercontent.com') && (url.includes('=w') || url.includes('=h'))) {
-        return res.redirect(url);
-      }
+    if (url.includes('photos.app.goo.gl') || url.includes('photos.google.com')) {
+      try {
+        const pageRes = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          },
+          redirect: 'follow'
+        });
 
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        },
-        redirect: 'follow'
-      });
+        if (pageRes.ok) {
+          const html = await pageRes.text();
+          
+          const ogImageMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
+                               html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
+          
+          const twitterImageMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i) ||
+                                    html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i);
 
-      if (response.ok) {
-        const html = await response.text();
-        
-        // Match meta tags with robust order-independent attributes
-        const ogImageMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
-                             html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
-        if (ogImageMatch && ogImageMatch[1]) {
-          return res.redirect(ogImageMatch[1]);
-        }
-        
-        const twitterImageMatch = html.match(/<meta[^>]*name=["']twitter:image["'][^>]*content=["']([^"']+)["']/i) ||
-                                  html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']twitter:image["']/i);
-        if (twitterImageMatch && twitterImageMatch[1]) {
-          return res.redirect(twitterImageMatch[1]);
-        }
+          const lhMatch = html.match(/"(https:\/\/lh3\.googleusercontent\.com\/[a-zA-Z0-9_-]+)"/);
 
-        // Match common lh3 googleusercontent images
-        const lhMatch = html.match(/"(https:\/\/lh3\.googleusercontent\.com\/[a-zA-Z0-9_-]+)"/);
-        if (lhMatch && lhMatch[1]) {
-          return res.redirect(lhMatch[1]);
+          if (ogImageMatch && ogImageMatch[1]) {
+            targetImageUrl = ogImageMatch[1];
+          } else if (twitterImageMatch && twitterImageMatch[1]) {
+            targetImageUrl = twitterImageMatch[1];
+          } else if (lhMatch && lhMatch[1]) {
+            targetImageUrl = lhMatch[1];
+          }
         }
+      } catch (err) {
+        console.warn("Failed to extract Google Photos HTML, attempting direct fetch:", err);
       }
     }
 
-    return res.redirect(url);
+    // Append sizing parameters to googleusercontent links if missing
+    if (targetImageUrl.includes('lh3.googleusercontent.com') && !targetImageUrl.includes('=') && !targetImageUrl.includes('/d/')) {
+      targetImageUrl += '=w1200-h800-no';
+    }
+
+    // 3. Directly stream image binary content to browser
+    const imageRes = await fetch(targetImageUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8'
+      }
+    });
+
+    if (imageRes.ok) {
+      const contentType = imageRes.headers.get('content-type') || 'image/jpeg';
+      const arrayBuffer = await imageRes.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.send(buffer);
+    }
+
+    // Fallback redirect if fetch fails
+    return res.redirect(targetImageUrl);
   } catch (err) {
     console.error('Error resolving proxy image:', err);
     try {
@@ -153,7 +174,7 @@ app.get('/api/proxy-image', async (req, res) => {
         return res.redirect(url);
       }
     } catch (_) {}
-    return res.status(500).send('Error resolving image');
+    return res.status(500).send('Failed to proxy image');
   }
 });
 

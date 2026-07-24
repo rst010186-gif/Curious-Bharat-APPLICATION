@@ -1,5 +1,7 @@
 import { Course } from '../types';
 import { chaptersData } from './chapters';
+// @ts-ignore
+import boyGirlCuriousBharat from '../assets/images/boy_girl_curious_bharat_1784813567963.jpg';
 
 export const defaultCourses: Course[] = [
   {
@@ -109,7 +111,6 @@ export const defaultCourses: Course[] = [
     isPaid: false,
     price: '0',
     subject: 'Physics',
-    thumbnailUrl: 'https://img.youtube.com/vi/URUJD5NEXC8/maxresdefault.jpg',
     chapters: [
       {
         ...chaptersData[8], // Light: Reflection, Refraction & Optical Phenomena
@@ -137,5 +138,6 @@ export const defaultCustomization = {
   shapeStyle: 'curved' as const,
   textHeadingStyle: 'normal' as const,
   appLogoText: 'CB',
-  appLogoIcon: 'graduation-cap' as const
+  appLogoIcon: 'graduation-cap' as const,
+  appLogoUrl: boyGirlCuriousBharat
 };

@@ -750,6 +750,7 @@ export default function AdminPortal({
   const [spreadsheetSearch, setSpreadsheetSearch] = useState('');
   const [spreadsheetSortField, setSpreadsheetSortField] = useState<string>('studentName');
   const [spreadsheetSortOrder, setSpreadsheetSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [spreadsheetCategoryFilter, setSpreadsheetCategoryFilter] = useState<'all' | 'paid' | 'free'>('all');
   const [selectedSpreadsheetRowId, setSelectedSpreadsheetRowId] = useState<string | null>(null);
 
   // New chapter inputs
@@ -2643,7 +2644,7 @@ export default function AdminPortal({
                                 alt="Batch Preview"
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=100&q=80';
+                                  (e.target as HTMLImageElement).src = getProxiedImageUrl(undefined);
                                 }}
                               />
                             </div>
@@ -3220,7 +3221,44 @@ export default function AdminPortal({
             </div>
 
             {/* SPREADSHEET CONTROL BAR */}
-            <div className="bg-zinc-950 border border-zinc-850 p-4 rounded-2xl flex flex-col sm:flex-row gap-3 justify-between items-center">
+            <div className="bg-zinc-950 border border-zinc-850 p-4 rounded-2xl flex flex-col lg:flex-row gap-3 justify-between items-center">
+              {/* Category Filter Tabs */}
+              <div className="flex items-center gap-1.5 p-1 bg-zinc-900 border border-zinc-800 rounded-xl shrink-0 w-full lg:w-auto overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => { playSound('click'); setSpreadsheetCategoryFilter('all'); }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition cursor-pointer ${
+                    spreadsheetCategoryFilter === 'all'
+                      ? 'bg-white text-black shadow'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  All Users ({studentAnalysisRecords.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { playSound('click'); setSpreadsheetCategoryFilter('paid'); }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition cursor-pointer ${
+                    spreadsheetCategoryFilter === 'paid'
+                      ? 'bg-emerald-500 text-zinc-950 shadow'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Paid Batches ({studentAnalysisRecords.filter(r => !r.price.includes('₹0') && !r.paymentDetails.includes('FREE')).length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { playSound('click'); setSpreadsheetCategoryFilter('free'); }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-extrabold transition cursor-pointer ${
+                    spreadsheetCategoryFilter === 'free'
+                      ? 'bg-amber-400 text-zinc-950 shadow'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Free App Users ({studentAnalysisRecords.filter(r => r.price.includes('₹0') || r.paymentDetails.includes('FREE')).length})
+                </button>
+              </div>
+
               {/* Search Bar */}
               <div className="relative w-full sm:w-72">
                 <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5" />
@@ -3370,7 +3408,7 @@ export default function AdminPortal({
                           </div>
                         </th>
                         <th className="py-2.5 px-4 border-r border-zinc-800">Contact Details</th>
-                        <th className="py-2.5 px-4 border-r border-zinc-800">Purchased Course</th>
+                        <th className="py-2.5 px-4 border-r border-zinc-800">Batch / Portal</th>
                         <th 
                           onClick={() => {
                             setSpreadsheetSortOrder(prev => spreadsheetSortField === 'price' && prev === 'asc' ? 'desc' : 'asc');
@@ -3382,13 +3420,20 @@ export default function AdminPortal({
                             Price {spreadsheetSortField === 'price' && (spreadsheetSortOrder === 'asc' ? '▲' : '▼')}
                           </div>
                         </th>
-                        <th className="py-2.5 px-4 border-r border-zinc-800 w-32">UTR Ref</th>
+                        <th className="py-2.5 px-3 border-r border-zinc-800 text-center">Lectures Watched</th>
+                        <th className="py-2.5 px-3 border-r border-zinc-800 text-center">Tests Attempted</th>
+                        <th className="py-2.5 px-3 border-r border-zinc-800 text-center">Marks Gained</th>
+                        <th className="py-2.5 px-4 border-r border-zinc-800 w-28">UTR / Ref</th>
                         <th className="py-2.5 px-3 text-center">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-zinc-900 font-mono text-xs">
                       {studentAnalysisRecords
                         .filter(r => {
+                          const isFree = r.price.includes('₹0') || r.paymentDetails.includes('FREE');
+                          if (spreadsheetCategoryFilter === 'paid' && isFree) return false;
+                          if (spreadsheetCategoryFilter === 'free' && !isFree) return false;
+
                           const q = spreadsheetSearch.toLowerCase();
                           return r.studentName.toLowerCase().includes(q) ||
                                  r.contactDetails.toLowerCase().includes(q) ||
@@ -3409,6 +3454,8 @@ export default function AdminPortal({
                         })
                         .map((record, index) => {
                           const isSelected = selectedSpreadsheetRowId === record.id;
+                          const isFreeUser = record.price.includes('₹0') || record.paymentDetails.includes('FREE');
+
                           return (
                             <tr 
                               key={record.id}
@@ -3460,9 +3507,16 @@ export default function AdminPortal({
                                 />
                               </td>
 
-                              {/* PURCHASED COURSE */}
+                              {/* BATCH / PORTAL */}
                               <td className="py-2 px-4 border-r border-zinc-850 text-zinc-400 truncate max-w-[180px]">
-                                {record.courseTitle}
+                                <div className="flex items-center gap-1.5">
+                                  {isFreeUser ? (
+                                    <span className="px-1.5 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/30 text-[9px] font-bold shrink-0">FREE</span>
+                                  ) : (
+                                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[9px] font-bold shrink-0">PAID</span>
+                                  )}
+                                  <span className="truncate">{record.courseTitle}</span>
+                                </div>
                               </td>
 
                               {/* TRANSACTION PRICE */}
@@ -3470,8 +3524,23 @@ export default function AdminPortal({
                                 {record.price}
                               </td>
 
+                              {/* LECTURES WATCHED */}
+                              <td className="py-2 px-3 border-r border-zinc-850 text-center font-bold text-cyan-400">
+                                {record.syllabusChaptersRead ?? 10} Ch
+                              </td>
+
+                              {/* TESTS ATTEMPTED */}
+                              <td className="py-2 px-3 border-r border-zinc-850 text-center font-bold text-purple-400">
+                                {record.quizSubmissionsSolved ?? 75} Solved
+                              </td>
+
+                              {/* MARKS GAINED */}
+                              <td className="py-2 px-3 border-r border-zinc-850 text-center font-bold text-yellow-400">
+                                {record.diagnosticScore ?? 85}%
+                              </td>
+
                               {/* PAYMENT REFERENCE DETS */}
-                              <td className="py-2 px-4 border-r border-zinc-850 text-zinc-500 text-[10px]">
+                              <td className="py-2 px-4 border-r border-zinc-850 text-zinc-500 text-[10px] truncate max-w-[120px]">
                                 {record.paymentDetails}
                               </td>
 

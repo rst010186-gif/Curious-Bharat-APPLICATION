@@ -807,89 +807,17 @@ export default function Dashboard({
                 </div>
               </div>
 
-              {/* Magnificent Mascots 3D Element with background AshokChakra */}
-              <div className="md:col-span-4 h-44 sm:h-52 relative flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#FF671F]/15 to-[#046A38]/15 rounded-full blur-2xl animate-pulse" />
-                <AshokChakra size={140} animateRotation={true} glow={true} className="absolute opacity-25 z-0" />
-                <ThreeDElement type="hometown_mascots" className="w-44 h-44 sm:w-48 sm:h-48 relative z-10" />
+              {/* Magnificent Mascots 3D Element */}
+              <div className="md:col-span-4 h-48 sm:h-56 relative flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#FF671F]/10 to-[#046A38]/10 rounded-full blur-2xl" />
+                <ThreeDElement type="boy_girl_curious_bharat" className="w-48 h-48 sm:w-56 sm:h-56 relative z-10" autoRotate={true} interactive={true} />
               </div>
             </div>
           </motion.div>
         );
 
       case 'stats':
-        if (selectedCourse) return null;
-        return (
-          <div key="stats" className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
-            
-            {/* Card 1: Study Coins / XP */}
-            <div className="p-6 rounded-3xl border flex flex-col justify-between relative overflow-hidden group min-h-[160px] bg-zinc-950 border-zinc-900/85 hover:border-zinc-800">
-              <div className="absolute top-0 left-0 w-[4px] h-full bg-[#ef4444]" />
-              <div className="flex justify-between items-start w-full">
-                <div className="space-y-1 relative z-10 text-left">
-                  <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-500 block">
-                    {appLanguage === 'hi' ? 'अर्जित सिक्के' : 'ACADEMIC COINS'}
-                  </span>
-                  <h4 className="text-3xl font-sans font-black text-white leading-none">
-                    {progress.totalXP || 0}
-                  </h4>
-                  <p className="text-[10px] text-zinc-400 font-medium pt-1">
-                    {appLanguage === 'hi' ? 'क्विज़ और अध्ययन से अर्जित' : 'Earned via quizzes & training'}
-                  </p>
-                </div>
-                {/* Prominent 3D Coins */}
-                <div className="w-24 h-24 relative -mr-4 -mt-4 shrink-0">
-                  <ThreeDElement type="coins_3d_academic" className="w-full h-full" />
-                </div>
-              </div>
-            </div>
-
-            {/* Card 2: Learning Streak */}
-            <div className="p-6 rounded-3xl border flex flex-col justify-between relative overflow-hidden group min-h-[160px] bg-zinc-950 border-zinc-900/85 hover:border-zinc-800">
-              <div className="absolute top-0 left-0 w-[4px] h-full bg-[#14b8a6]" />
-              <div className="flex justify-between items-start w-full">
-                <div className="space-y-1 relative z-10 text-left">
-                  <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-500 block">
-                    {appLanguage === 'hi' ? 'सक्रियता क्रम' : 'DAILY STUDY STREAK'}
-                  </span>
-                  <h4 className="text-3xl font-sans font-black text-white leading-none flex items-center gap-1.5">
-                    {progress.streak || 0} <span className="text-sm font-bold text-teal-400">Days</span>
-                  </h4>
-                  <p className="text-[10px] text-zinc-400 font-medium pt-1">
-                    {appLanguage === 'hi' ? 'दैनिक निरंतर अध्ययन लक्ष्य' : 'Keep learning to sustain streak'}
-                  </p>
-                </div>
-                {/* Prominent 3D Cap */}
-                <div className="w-24 h-24 relative -mr-4 -mt-4 shrink-0">
-                  <ThreeDElement type="cap" className="w-full h-full" />
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: Doubts Asked */}
-            <div className="p-6 rounded-3xl border flex flex-col justify-between relative overflow-hidden group min-h-[160px] bg-zinc-950 border-zinc-900/85 hover:border-zinc-800">
-              <div className="absolute top-0 left-0 w-[4px] h-full bg-[#fbbf24]" />
-              <div className="flex justify-between items-start w-full">
-                <div className="space-y-1 relative z-10 text-left">
-                  <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-500 block">
-                    {appLanguage === 'hi' ? 'संदेह और प्रश्न' : 'DOUBTS SOLVED'}
-                  </span>
-                  <h4 className="text-3xl font-sans font-black text-white leading-none">
-                    {progress.aiDoubtsAsked || 0}
-                  </h4>
-                  <p className="text-[10px] text-zinc-400 font-medium pt-1">
-                    {appLanguage === 'hi' ? 'भारत एआई सलाहकार द्वारा समाधान' : 'Resolved by Bharat AI mentor'}
-                  </p>
-                </div>
-                {/* Prominent 3D Question Mark */}
-                <div className="w-24 h-24 relative -mr-4 -mt-4 shrink-0">
-                  <ThreeDElement type="question_mark_3d" className="w-full h-full" />
-                </div>
-              </div>
-            </div>
-
-          </div>
-        );
+        return null;
 
       case 'courses':
         if (selectedCourse) {
@@ -2198,11 +2126,16 @@ export default function Dashboard({
               {/* Subtle Premium Top accent bar */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#4F9DFF] to-[#14b8a6] z-30"></div>
 
-              {/* Premium Big Price Tag Sticker */}
-              <div className="absolute top-4 right-16 bg-gradient-to-br from-yellow-400 via-amber-400 to-yellow-500 text-black font-black py-2.5 px-4 rounded-2xl shadow-2xl border-4 border-double border-yellow-600 z-40 transform rotate-12 select-none hover:scale-105 transition duration-200 flex flex-col items-center justify-center leading-none">
-                <span className="text-[9px] uppercase tracking-widest text-black/75 font-mono font-bold">Special Price</span>
-                <span className="text-xl font-black font-mono tracking-tight my-1 text-slate-950">{checkoutCourse.price}</span>
-                <span className="text-[8px] uppercase tracking-wider text-black/60 font-extrabold">Lifetime Pass</span>
+              {/* Premium Big Price Tag Sticker with 3D Element */}
+              <div className="absolute top-3 right-16 z-40 flex items-center gap-1 select-none">
+                <div className="w-16 h-16 shrink-0 relative">
+                  <ThreeDElement type="price_tag_3d" className="w-full h-full" autoRotate={true} interactive={true} />
+                </div>
+                <div className="bg-gradient-to-br from-yellow-400 via-amber-400 to-yellow-500 text-black font-black py-2 px-3.5 rounded-2xl shadow-2xl border-2 border-yellow-600 transform rotate-6 hover:scale-105 transition duration-200 flex flex-col items-center justify-center leading-none">
+                  <span className="text-[8px] uppercase tracking-widest text-black/75 font-mono font-bold">Special Price</span>
+                  <span className="text-lg font-black font-mono tracking-tight my-0.5 text-slate-950">{checkoutCourse.price}</span>
+                  <span className="text-[8px] uppercase tracking-wider text-black/60 font-extrabold">Lifetime Pass</span>
+                </div>
               </div>
 
               <button

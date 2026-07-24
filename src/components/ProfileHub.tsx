@@ -435,6 +435,96 @@ export default function ProfileHub({
       </div>
 
       {/* =======================================================
+          ACADEMIC COINS & SCHOLAR REWARDS SECTION
+          ======================================================= */}
+      <div className="bg-gradient-to-br from-zinc-950 via-black to-zinc-950 border border-amber-500/30 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+        <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-zinc-900/90 pb-4 gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-amber-950/40 border border-amber-800/40 flex items-center justify-center p-1">
+              <Coins className="w-6 h-6 text-yellow-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                {appLanguage === 'hi' ? 'एकेडमिक कॉइन्स वॉलेट और पुरस्कार' : 'Academic Coins Wallet & Scholar Rewards'}
+                <span className="text-[10px] bg-amber-400/10 text-amber-400 border border-amber-400/30 font-mono px-2 py-0.5 rounded-full uppercase font-bold">
+                  {appLanguage === 'hi' ? 'सक्रिय बैलेंस' : 'ACTIVE BALANCE'}
+                </span>
+              </h3>
+              <p className="text-xs text-zinc-400">
+                {appLanguage === 'hi' ? 'पाठ, क्विज़ और संदेह समाधान से अर्जित सिक्के' : 'Coins earned through video lessons, quizzes, practice tests, and doubt clearing.'}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 bg-zinc-900/80 border border-zinc-800 px-4 py-2 rounded-2xl shadow-inner">
+            <Coins className="w-5 h-5 text-yellow-400 animate-bounce" />
+            <span className="text-2xl font-black font-mono text-white leading-none">
+              {progress.totalXP || 0}
+            </span>
+            <span className="text-xs font-bold text-zinc-400 font-mono uppercase">Coins</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Main 3D Coins Card */}
+          <div className="bg-zinc-900/40 border border-amber-500/20 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden group hover:border-amber-500/40 transition">
+            <div className="space-y-1 relative z-10 text-left">
+              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-amber-400 block">
+                {appLanguage === 'hi' ? 'कुल अर्जित कॉइन्स' : 'TOTAL ACADEMIC COINS'}
+              </span>
+              <h4 className="text-3xl font-black text-white font-mono leading-none">
+                {progress.totalXP || 0}
+              </h4>
+              <p className="text-[11px] text-zinc-400 font-medium pt-1">
+                {appLanguage === 'hi' ? 'राष्ट्रीय स्तर पर रैंक में सुधार करें' : 'Earned through quizzes & studies'}
+              </p>
+            </div>
+            <div className="w-24 h-24 relative shrink-0">
+              <ThreeDElement type="academic_coins_3d" className="w-full h-full" autoRotate={true} interactive={true} />
+            </div>
+          </div>
+
+          {/* Chapters Mastered Stats */}
+          <div className="bg-zinc-900/40 border border-teal-500/20 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden group hover:border-teal-500/40 transition">
+            <div className="space-y-1 relative z-10 text-left">
+              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-teal-400 block">
+                {appLanguage === 'hi' ? 'पूर्ण किए गए अध्याय' : 'CHAPTERS MASTERED'}
+              </span>
+              <h4 className="text-3xl font-black text-white font-mono leading-none flex items-baseline gap-1.5">
+                {completedLecturesCount} <span className="text-xs font-bold text-teal-400">/ {totalLecturesCount} Ch</span>
+              </h4>
+              <p className="text-[11px] text-zinc-400 font-medium pt-1">
+                {appLanguage === 'hi' ? 'पाठ्यक्रम पूरा होने की वास्तविक स्थिति' : 'Real-time syllabus completion'}
+              </p>
+            </div>
+            <div className="w-20 h-20 relative shrink-0">
+              <ThreeDElement type="cap" className="w-full h-full" autoRotate={true} interactive={true} />
+            </div>
+          </div>
+
+          {/* Doubts & Accuracy Stats */}
+          <div className="bg-zinc-900/40 border border-yellow-500/20 rounded-2xl p-5 flex items-center justify-between relative overflow-hidden group hover:border-yellow-500/40 transition">
+            <div className="space-y-1 relative z-10 text-left">
+              <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-yellow-400 block">
+                {appLanguage === 'hi' ? 'संदेह और प्रश्न' : 'DOUBTS SOLVED'}
+              </span>
+              <h4 className="text-3xl font-black text-white font-mono leading-none">
+                {progress.aiDoubtsAsked || 0}
+              </h4>
+              <p className="text-[11px] text-zinc-400 font-medium pt-1">
+                {appLanguage === 'hi' ? 'भारत एआई सलाहकार द्वारा समाधान' : 'Resolved with Bharat AI mentor'}
+              </p>
+            </div>
+            <div className="w-20 h-20 relative shrink-0">
+              <ThreeDElement type="question_mark_3d" className="w-full h-full" autoRotate={true} interactive={true} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* =======================================================
           ACADEMIC SOLUTION ACCELERATION DASHBOARD (RELOCATED)
           ======================================================= */}
       <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-6 space-y-6 shadow-xl relative overflow-hidden">

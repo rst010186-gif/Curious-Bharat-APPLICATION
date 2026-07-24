@@ -9,16 +9,14 @@ export function getProxiedImageUrl(url: string | null | undefined): string {
     return url;
   }
   
-  // For web URLs, wrap Google Photos/Google Drive or other problematic links in our server-side image resolver proxy
+  // If it's already wrapped in our proxy-image, return as is
+  if (url.startsWith('/api/proxy-image')) {
+    return url;
+  }
+  
+  // For web URLs, wrap in our server-side image resolver proxy to stream bytes without CORS/Referrer blocks
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    if (
-      url.includes('photos.app.goo.gl') || 
-      url.includes('photos.google.com') || 
-      url.includes('drive.google.com') ||
-      url.includes('googleusercontent.com')
-    ) {
-      return `/api/proxy-image?url=${encodeURIComponent(url)}`;
-    }
+    return `/api/proxy-image?url=${encodeURIComponent(url)}`;
   }
   
   return url;
