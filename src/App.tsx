@@ -35,7 +35,9 @@ import {
   Mic,
   Download,
   Smartphone,
-  WifiOff
+  WifiOff,
+  Palette,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePWA } from './hooks/usePWA';
@@ -55,6 +57,7 @@ import OnboardingWizard from './components/OnboardingWizard';
 import ThreeDElement from './components/ThreeDElement';
 import AshokChakra from './components/AshokChakra';
 import PullToRefresh from './components/PullToRefresh';
+import AppUpdateNotifier from './components/AppUpdateNotifier';
 import { playSound } from './utils/audio';
 import { dbService } from './lib/firebase';
 import { getProxiedImageUrl } from './utils/imageUrl';
@@ -100,6 +103,8 @@ if (typeof window !== 'undefined') {
 
 export default function App() {
   const { isInstallable, installApp, isOffline, isPWA } = usePWA();
+  const [courses, setCourses] = useState<Course[]>(defaultCourses);
+  const [customization, setCustomization] = useState<AppCustomization>(defaultCustomization);
   const [currentView, setCurrentView] = useState<'dashboard' | 'chapter-study' | 'chapter-quiz' | 'chapter-flashcards' | 'admin' | 'ai' | 'feedback' | 'checkout'>('dashboard');
   const [activeTab, setActiveTab] = useState<'home' | 'batches' | 'practice' | 'ai' | 'profile'>('home');
   const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
@@ -182,6 +187,8 @@ export default function App() {
 
   // Global Checkout Modal State
   const [globalCheckoutCourse, setGlobalCheckoutCourse] = useState<Course | null>(null);
+  const [robotIconType, setRobotIconType] = useState<'futuristic_ai_robot' | 'science_girl_flask' | 'tricolor_atom'>('futuristic_ai_robot');
+  const [showRobotPicker, setShowRobotPicker] = useState(false);
   const [checkoutStudentName, setCheckoutStudentName] = useState('');
   const [checkoutStudentEmail, setCheckoutStudentEmail] = useState('');
   const [checkoutStudentPhone, setCheckoutStudentPhone] = useState('');
@@ -338,6 +345,17 @@ export default function App() {
     }
   };
 
+  // Theme Palette Color Combos State
+  const [activePalette, setActivePalette] = useState<'patriotic' | 'cyberpunk' | 'emerald' | 'crimson' | 'pacific'>(() => {
+    return (localStorage.getItem('pref_palette') as any) || 'patriotic';
+  });
+  const [showPaletteModal, setShowPaletteModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    document.body.setAttribute('data-palette', activePalette);
+    localStorage.setItem('pref_palette', activePalette);
+  }, [activePalette]);
+
   // Load language preference
   useEffect(() => {
     const savedLang = localStorage.getItem('pref_app_language');
@@ -407,10 +425,6 @@ export default function App() {
 
   // Student Analysis Records
   const [studentAnalysisRecords, setStudentAnalysisRecords] = useState<StudentAnalysisRecord[]>([]);
-
-  // Courses and Theme Customization State
-  const [courses, setCourses] = useState<Course[]>(defaultCourses);
-  const [customization, setCustomization] = useState<AppCustomization>(defaultCustomization);
 
   // Student Feedback modal state
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
@@ -1175,6 +1189,7 @@ export default function App() {
                 <span className="hidden sm:inline">Install App</span>
               </button>
             )}
+
 
             {/* Feedback & Suggestion Button */}
             <button
@@ -2073,43 +2088,45 @@ export default function App() {
         </button>
       </footer>
 
-      {/* Floating Bharat AI Robot Assistant Button */}
+      {/* Draggable Bharat AI Robot Assistant Button (Defaulted to bottom-right) */}
       {currentView !== 'admin' && (
         <motion.div
+          drag
+          dragMomentum={false}
+          whileDrag={{ scale: 1.1, cursor: 'grabbing' }}
           initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1, y: [0, -4, 0] }}
-          transition={{
-            y: { duration: 3.5, repeat: Infinity, ease: 'easeInOut' },
-            scale: { duration: 0.3 }
-          }}
-          className="fixed top-16 right-3 sm:top-20 sm:right-6 z-50"
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="fixed bottom-20 right-3 sm:bottom-24 sm:right-6 z-50 flex items-center gap-1.5 touch-none"
         >
-          <button
-            onClick={() => {
-              playSound('click');
-              setIsAIOpen(true);
-            }}
-            className="group relative flex items-center gap-2 p-2 sm:px-3 sm:py-2 rounded-2xl bg-zinc-950/90 backdrop-blur-md border border-yellow-400/40 hover:border-yellow-400 text-white shadow-2xl transition hover:scale-105 active:scale-95 cursor-pointer"
-            title="Open Bharat AI Assistant"
-          >
-            {/* Glowing Backdrop pulse */}
-            <div className="absolute inset-0 rounded-2xl bg-yellow-400/10 blur-sm group-hover:bg-yellow-400/20 transition" />
-            
-            {/* 3D Robot Head / Body */}
-            <div className="w-9 h-9 sm:w-10 sm:h-10 relative shrink-0">
-              <ThreeDElement type="futuristic_ai_robot" className="w-full h-full" autoRotate={true} />
-            </div>
+          <div className="relative group">
+            <button
+              onClick={() => {
+                playSound('click');
+                setIsAIOpen(true);
+              }}
+              className="relative flex items-center gap-2 p-2 sm:px-3 sm:py-2 rounded-2xl bg-zinc-950/95 backdrop-blur-md border border-yellow-400/50 hover:border-yellow-400 text-white shadow-2xl transition cursor-grab active:cursor-grabbing"
+              title="Drag anywhere or click to open Bharat AI Assistant"
+            >
+              {/* Glowing Backdrop */}
+              <div className="absolute inset-0 rounded-2xl bg-yellow-400/10 blur-sm group-hover:bg-yellow-400/20 transition" />
+              
+              {/* Selected 3D Robot Icon */}
+              <div className="w-10 h-10 sm:w-11 sm:h-11 relative shrink-0">
+                <ThreeDElement type="futuristic_ai_robot" className="w-full h-full" autoRotate={true} />
+              </div>
 
-            <div className="hidden xs:flex flex-col text-left">
-              <span className="text-[10px] font-black tracking-wider text-yellow-400 uppercase leading-none flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-ping" />
-                Bharat AI
-              </span>
-              <span className="text-[9px] text-zinc-400 font-medium leading-none pt-0.5">
-                {appLanguage === 'hi' ? '24x7 संदेह समाधान' : 'Ask Doubts'}
-              </span>
-            </div>
-          </button>
+              <div className="hidden xs:flex flex-col text-left pr-1">
+                <span className="text-[10px] font-black tracking-wider text-yellow-400 uppercase leading-none flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-ping" />
+                  Bharat AI
+                </span>
+                <span className="text-[9px] text-zinc-400 font-medium leading-none pt-0.5">
+                  {appLanguage === 'hi' ? '24x7 संदेह समाधान' : 'Ask Doubts'}
+                </span>
+              </div>
+            </button>
+          </div>
         </motion.div>
       )}
 
@@ -2182,12 +2199,16 @@ export default function App() {
         />
       )}
 
+
       {!progress.onboarded && (
         <OnboardingWizard 
           onComplete={handleOnboardingComplete} 
           isDarkMode={isDarkMode} 
         />
       )}
+
+      {/* Real-time APK & OTA Background Updater */}
+      <AppUpdateNotifier />
 
       </div>
     </PullToRefresh>

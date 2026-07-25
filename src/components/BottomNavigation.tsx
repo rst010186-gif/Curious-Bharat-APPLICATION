@@ -15,8 +15,6 @@ export default function BottomNavigation({
   isOnline,
   appLanguage = 'en'
 }: BottomNavigationProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   interface TabItem {
     id: 'home' | 'batches' | 'practice' | 'profile';
@@ -31,65 +29,10 @@ export default function BottomNavigation({
     { id: 'profile', label: appLanguage === 'hi' ? 'प्रोफ़ाइल' : 'Profile', icon: User }
   ];
 
-  // Disappearing/Consolidating timer: 20 seconds of user idleness
-  const resetTimer = () => {
-    setIsCollapsed(false);
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    timerRef.current = setTimeout(() => {
-      setIsCollapsed(true);
-    }, 20000); // 20 seconds
-  };
-
-  useEffect(() => {
-    // Listen to user interactions anywhere on the window
-    const events = ['mousemove', 'click', 'keydown', 'touchstart', 'scroll'];
-    
-    // Start initial timer
-    resetTimer();
-
-    const handleActivity = () => {
-      resetTimer();
-    };
-
-    events.forEach(event => {
-      window.addEventListener(event, handleActivity);
-    });
-
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      events.forEach(event => {
-        window.removeEventListener(event, handleActivity);
-      });
-    };
-  }, []);
-
   const handleTabClick = (tabId: 'home' | 'batches' | 'practice' | 'profile') => {
     playSound('Toggle Tick');
     onChangeTab(tabId);
-    resetTimer();
   };
-
-  if (isCollapsed) {
-    return (
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-        <button
-          onClick={() => {
-            playSound('UI Pop');
-            setIsCollapsed(false);
-            resetTimer();
-          }}
-          className="px-5 py-2.5 bg-zinc-950/95 backdrop-blur-md border border-zinc-800 text-yellow-400 hover:text-white rounded-full flex items-center gap-2 shadow-2xl text-xs font-bold transition cursor-pointer"
-        >
-          <ChevronUp className="w-4 h-4 animate-pulse" />
-          <span>{appLanguage === 'hi' ? 'नेविगेशन दिखाएं' : 'Show Navigation'}</span>
-        </button>
-      </div>
-    );
-  }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-lg border-t border-zinc-850 z-40 shadow-2xl transition-all duration-300 safe-pb">

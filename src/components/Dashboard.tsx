@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Flame, 
@@ -188,46 +188,66 @@ export default function Dashboard({
     }
   };
 
+  const searchRecognitionRef = useRef<any>(null);
+
   const startSearchVoiceTyping = () => {
     playSound('click');
+
+    if (isSearchListening && searchRecognitionRef.current) {
+      try {
+        searchRecognitionRef.current.stop();
+      } catch (e) {}
+      setIsSearchListening(false);
+      return;
+    }
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setIsSearchListening(true);
-      setTimeout(() => {
-        setSearchTerm("Chemical Reactions and Equations");
-        setIsSearchListening(false);
-      }, 2000);
+      alert(appLanguage === 'hi' 
+        ? "आपका ब्राउज़र स्पीच रिकग्निशन का समर्थन नहीं करता है।" 
+        : "Speech recognition is not supported on your browser or device."
+      );
       return;
     }
 
     try {
       const rec = new SpeechRecognition();
       rec.continuous = false;
-      rec.interimResults = false;
+      rec.interimResults = true;
       rec.lang = appLanguage === 'hi' ? 'hi-IN' : 'en-IN';
+
+      searchRecognitionRef.current = rec;
 
       rec.onstart = () => {
         setIsSearchListening(true);
       };
 
       rec.onresult = (e: any) => {
-        const text = e.results[0][0].transcript;
-        setSearchTerm(text);
+        let transcriptStr = '';
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          transcriptStr += e.results[i][0].transcript;
+        }
+        if (transcriptStr.trim()) {
+          setSearchTerm(transcriptStr);
+        }
       };
 
       rec.onerror = (err: any) => {
         console.warn('Search speech recognition error:', err);
         setIsSearchListening(false);
+        searchRecognitionRef.current = null;
       };
 
       rec.onend = () => {
         setIsSearchListening(false);
+        searchRecognitionRef.current = null;
       };
 
       rec.start();
     } catch (e) {
-      console.error(e);
+      console.error("Search voice typing start failed:", e);
       setIsSearchListening(false);
+      searchRecognitionRef.current = null;
     }
   };
 

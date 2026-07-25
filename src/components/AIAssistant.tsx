@@ -106,49 +106,67 @@ export default function AIAssistant({
     }
   };
 
+  const activeRecognitionRef = useRef<any>(null);
+
   const startVoiceTyping = () => {
     playSound('click');
+
+    // If currently listening, stop recognition
+    if (isListening && activeRecognitionRef.current) {
+      try {
+        activeRecognitionRef.current.stop();
+      } catch (e) {}
+      setIsListening(false);
+      return;
+    }
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setIsListening(true);
-      setTimeout(() => {
-        setInputText(appLanguage === 'hi' 
-          ? "क्या आप मुझे न्यूटन के गति के नियम समझा सकते हैं?" 
-          : "Can you explain Newton's laws of motion in simple terms?"
-        );
-        setIsListening(false);
-      }, 2000);
+      alert(appLanguage === 'hi' 
+        ? "आपका ब्राउज़र स्पीच रिकग्निशन का समर्थन नहीं करता है। कृपया कीबोर्ड का उपयोग करें।" 
+        : "Speech recognition is not supported on your browser or device. Please type your query using the keyboard."
+      );
       return;
     }
 
     try {
       const rec = new SpeechRecognition();
       rec.continuous = false;
-      rec.interimResults = false;
+      rec.interimResults = true;
       rec.lang = appLanguage === 'hi' ? 'hi-IN' : 'en-IN';
+
+      activeRecognitionRef.current = rec;
 
       rec.onstart = () => {
         setIsListening(true);
       };
 
       rec.onresult = (e: any) => {
-        const text = e.results[0][0].transcript;
-        setInputText(text);
+        let transcriptStr = '';
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          transcriptStr += e.results[i][0].transcript;
+        }
+        if (transcriptStr.trim()) {
+          setInputText(transcriptStr);
+        }
       };
 
       rec.onerror = (err: any) => {
         console.warn('Voice typing error:', err);
         setIsListening(false);
+        activeRecognitionRef.current = null;
       };
 
       rec.onend = () => {
         setIsListening(false);
+        activeRecognitionRef.current = null;
       };
 
       rec.start();
     } catch (err) {
-      console.error(err);
+      console.error("Speech recognition start failed:", err);
       setIsListening(false);
+      activeRecognitionRef.current = null;
     }
   };
 

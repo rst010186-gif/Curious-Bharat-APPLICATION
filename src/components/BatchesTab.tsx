@@ -18,7 +18,9 @@ import {
   Brain,
   Download,
   FolderClosed,
-  ChevronRight
+  ChevronRight,
+  Share2,
+  HelpCircle
 } from 'lucide-react';
 import { Course, StudentAnalysisRecord, OwnerProfile, Chapter, Topic } from '../types';
 import { dbService } from '../lib/firebase';
@@ -331,19 +333,20 @@ export default function BatchesTab({
               </p>
             </div>
 
-            {/* Study Tabs Selector */}
+            {/* Study Tabs Selector - Only show features that have updated/populated content in the batch */}
             <div className="flex flex-wrap gap-1.5 border-b border-zinc-900 pb-3">
               {[
-                { id: 'lecture', label: appLanguage === 'hi' ? 'व्याख्यान' : 'Lecture Video' },
-                { id: 'notes', label: appLanguage === 'hi' ? 'अध्ययन नोट्स' : 'Revision Notes' },
-                { id: 'quiz', label: appLanguage === 'hi' ? 'अभ्यास प्रश्नोत्तरी' : 'MCQ Quiz' },
-                { id: 'flashcards', label: appLanguage === 'hi' ? 'माइंड मैप' : 'Mind Map' },
-                { id: 'dpp', label: appLanguage === 'hi' ? 'अभ्यास पत्रक (DPP)' : 'DPP Sheets' }
-              ].map(tab => (
+                { id: 'lecture', label: appLanguage === 'hi' ? 'व्याख्यान' : 'Lecture Video', show: !!(selectedTopic.lectureUrl || selectedChapter?.lectureUrl) },
+                { id: 'notes', label: appLanguage === 'hi' ? 'अध्ययन नोट्स' : 'Revision Notes', show: !!(selectedTopic.sections && selectedTopic.sections.length > 0) },
+                { id: 'quiz', label: appLanguage === 'hi' ? 'अभ्यास प्रश्नोत्तरी' : 'MCQ Quiz', show: !!(selectedTopic.quiz && selectedTopic.quiz.length > 0) },
+                { id: 'flashcards', label: appLanguage === 'hi' ? 'माइंड मैप' : 'Mind Map', show: !!(selectedTopic.flashcards && selectedTopic.flashcards.length > 0) },
+                { id: 'dpp', label: appLanguage === 'hi' ? 'अभ्यास पत्रक (DPP)' : 'DPP Sheets', show: !!(selectedTopic.dppUrl || selectedTopic.pdfUrl || (selectedTopic.dppFiles && selectedTopic.dppFiles.length > 0) || selectedChapter?.dppUrl || selectedChapter?.pdfUrl || (selectedChapter?.dppFiles && selectedChapter.dppFiles.length > 0)) },
+                { id: 'test', label: appLanguage === 'hi' ? 'ऑनलाइन टेस्ट' : 'Online Test', show: true }
+              ].filter(t => t.show).map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => { playSound('click'); setActiveTopicTab(tab.id as any); }}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
                     activeTopicTab === tab.id 
                       ? 'bg-white text-black font-extrabold shadow-sm'
                       : 'bg-zinc-900 text-zinc-400 hover:text-white'
@@ -681,6 +684,52 @@ export default function BatchesTab({
                   </div>
                 </div>
               )}
+
+              {/* 6. ONLINE TEST TAB */}
+              {activeTopicTab === 'test' && (
+                <div className="space-y-4 max-w-xl mx-auto bg-zinc-950 border border-zinc-900 p-6 rounded-2xl text-left">
+                  <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400">
+                        NATIONAL BOARD EXAM MOCK TEST
+                      </span>
+                      <h3 className="text-base font-extrabold text-white">
+                        {selectedTopic.title} — Online Assessment
+                      </h3>
+                    </div>
+                    <span className="px-2.5 py-1 bg-amber-400/10 border border-amber-400/20 text-amber-400 font-mono text-[10px] font-bold rounded-lg">
+                      ⏱️ 30 Mins • 100 Marks
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 text-xs text-zinc-400">
+                    <p className="leading-relaxed">
+                      This timed test evaluates your conceptual clarity, numerical problem-solving, and speed. Complete all questions within the allocated time window.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 bg-zinc-900/50 p-3 rounded-xl border border-zinc-850">
+                      <div>
+                        <span className="text-[10px] text-zinc-500 font-mono uppercase block">Question Type</span>
+                        <span className="text-white font-bold">MCQs + Numerical Reasoning</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-zinc-500 font-mono uppercase block">Negative Marking</span>
+                        <span className="text-rose-400 font-bold">-1 Mark for incorrect answer</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      setActiveTopicTab('quiz');
+                    }}
+                    className="w-full py-3 bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-extrabold rounded-xl text-xs hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
+                  >
+                    <Zap className="w-4 h-4 fill-black" />
+                    <span>Start Test Now</span>
+                  </button>
+                </div>
+              )}
             </div>
 
           </div>
@@ -839,6 +888,26 @@ export default function BatchesTab({
                   >
                     <Play className="w-4 h-4 fill-black text-black" />
                     <span>Play All Syllabus</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      const shareData = {
+                        title: `${selectedCourse.title} - Curious Bharat`,
+                        text: `Enroll in ${selectedCourse.title} batch on Curious Bharat! Includes NCERT interactive video lectures, revision notes, tests & 3D simulations.`,
+                        url: `${window.location.origin}/?batch=${selectedCourse.id}`,
+                      };
+                      if (navigator.share) {
+                        navigator.share(shareData).catch(() => {});
+                      } else {
+                        navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
+                        alert('Batch share link copied to clipboard!');
+                      }
+                    }}
+                    className="w-full py-2.5 bg-zinc-900 border border-zinc-800 text-yellow-400 hover:text-white hover:bg-zinc-850 transition font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Share2 className="w-3.5 h-3.5 text-yellow-400" />
+                    <span>Share This Batch (APK)</span>
                   </button>
                 </div>
               </div>
@@ -1197,7 +1266,29 @@ export default function BatchesTab({
                           )}
                         </div>
 
-                        <div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playSound('click');
+                              const shareData = {
+                                title: `${course.title} - Curious Bharat`,
+                                text: `Enroll in ${course.title} batch on Curious Bharat! Features interactive video lectures, notes & tests.`,
+                                url: `${window.location.origin}/?batch=${course.id}`,
+                              };
+                              if (navigator.share) {
+                                navigator.share(shareData).catch(() => {});
+                              } else {
+                                navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
+                                alert('Batch share link copied to clipboard!');
+                              }
+                            }}
+                            className="p-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-xl border border-zinc-800 transition cursor-pointer"
+                            title="Share Batch Link"
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </button>
+
                           {isPurchased ? (
                             <button
                               onClick={() => {

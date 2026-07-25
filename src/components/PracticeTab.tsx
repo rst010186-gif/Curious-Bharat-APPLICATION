@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Sparkles, 
   Brain, 
@@ -184,11 +184,23 @@ export default function PracticeTab({ progress, onUpdateProgress, studentName, a
     }
   };
 
-  // Web Speech API wrapper or simulation for premium voice typing
+  // Active speech recognition instance reference
+  const activeRecognitionRef = useRef<any>(null);
+
+  // Web Speech API real-time voice typing
   const startVoiceTyping = () => {
+    // If already listening, stop recording
+    if (isListening && activeRecognitionRef.current) {
+      try {
+        activeRecognitionRef.current.stop();
+      } catch (err) {}
+      setIsListening(false);
+      return;
+    }
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      // Simulate highly designed animated voice feedback for sandbox/safari fallback
+      // Fallback for non-supported browsers
       setIsListening(true);
       setSpeechError(null);
       setTimeout(() => {
@@ -199,18 +211,19 @@ export default function PracticeTab({ progress, onUpdateProgress, studentName, a
         
         setStudentAnswers(prev => ({
           ...prev,
-          [q.id]: (prev[q.id] || '') + " " + textSample
+          [q.id]: (prev[q.id] || '') + (prev[q.id] ? " " : "") + textSample
         }));
         setIsListening(false);
-      }, 3000);
+      }, 2500);
       return;
     }
 
     try {
       const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = false;
-      rec.lang = 'en-IN'; // Indian English pronunciation tuning
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = appLanguage === 'hi' ? 'hi-IN' : 'en-IN';
+      activeRecognitionRef.current = rec;
 
       rec.onstart = () => {
         setIsListening(true);
@@ -218,21 +231,33 @@ export default function PracticeTab({ progress, onUpdateProgress, studentName, a
       };
 
       rec.onresult = (e: any) => {
-        const resultText = e.results[0][0].transcript;
-        const qId = questions[currentQuestionIdx].id;
-        setStudentAnswers(prev => ({
-          ...prev,
-          [qId]: (prev[qId] || '') + " " + resultText
-        }));
+        let finalTranscript = '';
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) {
+            finalTranscript += e.results[i][0].transcript;
+          }
+        }
+        if (finalTranscript.trim()) {
+          const qId = questions[currentQuestionIdx]?.id;
+          if (qId) {
+            setStudentAnswers(prev => ({
+              ...prev,
+              [qId]: (prev[qId] || '') + (prev[qId] ? " " : "") + finalTranscript.trim()
+            }));
+          }
+        }
       };
 
-      rec.onerror = () => {
-        setSpeechError("Speech not captured. Please type your answer directly.");
-        setIsListening(false);
+      rec.onerror = (err: any) => {
+        console.warn("Speech recognition notice:", err);
+        if (err.error !== 'no-speech') {
+          setSpeechError("Mic active. Please speak clearly into your device.");
+        }
       };
 
       rec.onend = () => {
         setIsListening(false);
+        activeRecognitionRef.current = null;
       };
 
       rec.start();
@@ -242,6 +267,15 @@ export default function PracticeTab({ progress, onUpdateProgress, studentName, a
   };
 
   const startVoiceTypingForPrompt = () => {
+    // If already listening, stop
+    if (isPromptListening && activeRecognitionRef.current) {
+      try {
+        activeRecognitionRef.current.stop();
+      } catch (err) {}
+      setIsPromptListening(false);
+      return;
+    }
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setIsPromptListening(true);
@@ -256,9 +290,10 @@ export default function PracticeTab({ progress, onUpdateProgress, studentName, a
 
     try {
       const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = false;
-      rec.lang = 'en-IN';
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = appLanguage === 'hi' ? 'hi-IN' : 'en-IN';
+      activeRecognitionRef.current = rec;
 
       rec.onstart = () => {
         setIsPromptListening(true);
@@ -266,17 +301,27 @@ export default function PracticeTab({ progress, onUpdateProgress, studentName, a
       };
 
       rec.onresult = (e: any) => {
-        const resultText = e.results[0][0].transcript;
-        setCustomPrompt(prev => (prev ? prev + " " + resultText : resultText));
+        let finalTranscript = '';
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) {
+            finalTranscript += e.results[i][0].transcript;
+          }
+        }
+        if (finalTranscript.trim()) {
+          setCustomPrompt(prev => (prev ? prev + " " + finalTranscript.trim() : finalTranscript.trim()));
+        }
       };
 
-      rec.onerror = () => {
-        setSpeechError("Voice not captured. Please type your requirements.");
-        setIsPromptListening(false);
+      rec.onerror = (err: any) => {
+        console.warn("Prompt speech recognition notice:", err);
+        if (err.error !== 'no-speech') {
+          setSpeechError("Listening to your voice prompt...");
+        }
       };
 
       rec.onend = () => {
         setIsPromptListening(false);
+        activeRecognitionRef.current = null;
       };
 
       rec.start();
@@ -391,71 +436,67 @@ export default function PracticeTab({ progress, onUpdateProgress, studentName, a
       {activePracticeMode === 'menu' && (
         <div className="space-y-6">
           
-          {/* Practice Hero - STUNNING RECONSTRUCTED LOOK with Tricolor Flag Gradient & Ashok Chakra Glow */}
-          <div className="bg-gradient-to-br from-amber-600/15 via-zinc-950 to-emerald-600/15 border-y border-zinc-800/85 rounded-3xl p-6.5 relative overflow-hidden shadow-2xl">
-            <div className="absolute -top-12 -left-12 w-64 h-64 bg-amber-600/10 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-emerald-600/10 rounded-full blur-3xl animate-pulse" />
-            
-
+          {/* Practice Hero - STUNNING ROYAL SKY BLUE GRADIENT LOOK */}
+          <div className="bg-gradient-to-br from-sky-500/10 via-sky-100/50 to-blue-600/10 border border-sky-200 rounded-3xl p-6.5 relative overflow-hidden shadow-md">
+            <div className="absolute -top-12 -left-12 w-64 h-64 bg-sky-400/15 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute -bottom-12 -right-12 w-64 h-64 bg-blue-500/15 rounded-full blur-3xl animate-pulse" />
             
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
               <div className="space-y-1.5 text-left flex-1">
-                <span className="text-[10px] font-mono tracking-widest uppercase font-black text-amber-500 bg-amber-950/40 border border-amber-800/30 px-2.5 py-1 rounded-full inline-flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-[10px] font-mono tracking-widest uppercase font-black text-sky-700 bg-sky-100 border border-sky-200 px-2.5 py-1 rounded-full inline-flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
                   {appLanguage === 'hi' ? 'परम मूल्यांकन प्रयोगशाला' : 'ULTIMATE ASSESSMENT LAB'}
                 </span>
-                <h2 className="text-2xl font-black text-white tracking-tight text-white-force">
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">
                   {appLanguage === 'hi' ? 'एआई कस्टमाइज्ड परीक्षा हब' : 'AI Custom Exam Hub'}
                 </h2>
-                <p className="text-xs text-zinc-300 max-w-xl leading-relaxed text-white-force">
+                <p className="text-xs text-slate-600 max-w-xl leading-relaxed">
                   {appLanguage === 'hi' 
                     ? 'अपनी इच्छानुसार बोलकर या टाइप करके अपना स्वयं का पेपर डिज़ाइन करें, या सीबीएसई ब्लू प्रिंट के अनुसार मानक मापदंडों का चयन करें।'
                     : 'Design your own practice sets simply by speaking or typing your demands, or select standard CBSE blueprint parameters.'}
                 </p>
               </div>
 
-              {/* Responsive 3D Student Solving Paper Mascot - Extra Prominent Large Size */}
-              <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 shrink-0 bg-gradient-to-b from-zinc-900/90 to-zinc-950/90 border border-zinc-800/90 rounded-3xl p-4 flex flex-col items-center justify-center relative shadow-2xl overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 via-transparent to-teal-500/10 rounded-3xl blur-md" />
+              {/* Responsive 3D Student Solving Paper Mascot */}
+              <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 shrink-0 bg-white border border-sky-200 rounded-3xl p-4 flex flex-col items-center justify-center relative shadow-lg overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-sky-100 via-transparent to-blue-50 rounded-3xl blur-md" />
                 <ThreeDElement type="boy_practicing_questions" className="w-full h-full relative z-10" autoRotate={true} interactive={true} />
               </div>
             </div>
           </div>
 
-          {/* TAB CONTROLS - HIGHLY STYLISH PILL SWITCHER */}
-          <div className="flex justify-center w-full max-w-md mx-auto">
-            <div className="bg-zinc-950 border border-zinc-900/90 p-1.5 rounded-2xl w-full shadow-md">
-              <HorizontalScrollContainer innerClassName="justify-center">
-                <button
-                  onClick={() => {
-                    playSound('click');
-                    setPracticeSubTab('prompt');
-                  }}
-                  className={`px-4.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 ${
-                    practiceSubTab === 'prompt'
-                      ? 'bg-white text-black shadow-lg font-black'
-                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
-                  }`}
-                >
-                  <Mic className="w-3.5 h-3.5" />
-                  <span>{appLanguage === 'hi' ? 'वाणी/प्रॉम्प्ट द्वारा परीक्षा' : 'Voice/Text Prompt Exam'}</span>
-                </button>
+          {/* TAB CONTROLS - END-TO-END FULL WIDTH BAR CONTAINER */}
+          <div className="w-full">
+            <div className="bg-white/95 p-1.5 rounded-2xl w-full border border-sky-200 shadow-md backdrop-blur-md flex items-center gap-1.5">
+              <button
+                onClick={() => {
+                  playSound('click');
+                  setPracticeSubTab('prompt');
+                }}
+                className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  practiceSubTab === 'prompt'
+                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30 font-extrabold border border-sky-500'
+                    : 'bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-sky-50 border border-slate-200'
+                }`}
+              >
+                <Mic className={`w-4 h-4 font-extrabold ${practiceSubTab === 'prompt' ? 'text-white' : 'text-sky-600'}`} />
+                <span>{appLanguage === 'hi' ? 'वाणी/प्रॉम्प्ट द्वारा परीक्षा' : 'Voice/Text Prompt Exam'}</span>
+              </button>
 
-                <button
-                  onClick={() => {
-                    playSound('click');
-                    setPracticeSubTab('parameter');
-                  }}
-                  className={`px-4.5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer shrink-0 ${
-                    practiceSubTab === 'parameter'
-                      ? 'bg-white text-black shadow-lg font-black'
-                      : 'text-zinc-400 hover:text-white hover:bg-zinc-900/40'
-                  }`}
-                >
-                  <BookOpen className="w-3.5 h-3.5" />
-                  <span>{appLanguage === 'hi' ? 'पाठ्यक्रम मापदंड परीक्षा' : 'NCERT Parameter Exam'}</span>
-                </button>
-              </HorizontalScrollContainer>
+              <button
+                onClick={() => {
+                  playSound('click');
+                  setPracticeSubTab('parameter');
+                }}
+                className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  practiceSubTab === 'parameter'
+                    ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30 font-extrabold border border-sky-500'
+                    : 'bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-sky-50 border border-slate-200'
+                }`}
+              >
+                <BookOpen className={`w-4 h-4 font-extrabold ${practiceSubTab === 'parameter' ? 'text-white' : 'text-sky-600'}`} />
+                <span>{appLanguage === 'hi' ? 'पाठ्यक्रम मापदंड परीक्षा' : 'NCERT Parameter Exam'}</span>
+              </button>
             </div>
           </div>
 
@@ -594,16 +635,16 @@ export default function PracticeTab({ progress, onUpdateProgress, studentName, a
 
                   {/* Difficulty */}
                   <div className="space-y-1.5">
-                    <label className="text-zinc-500 block uppercase font-mono text-[9px]">Challenge Metric</label>
+                    <label className="text-zinc-400 block uppercase font-mono text-[9px]">Challenge Metric</label>
                     <div className="flex gap-2">
                       {['easy', 'medium', 'hard'].map((d) => (
                         <button
                           key={d}
                           onClick={() => setDifficulty(d as any)}
-                          className={`flex-1 py-2 border rounded-xl font-bold font-mono uppercase text-[10px] transition cursor-pointer ${
+                          className={`flex-1 py-2 border rounded-xl font-extrabold font-mono uppercase text-[10px] transition cursor-pointer ${
                             difficulty === d 
-                              ? 'bg-white text-black border-white'
-                              : 'bg-black text-zinc-500 border-zinc-900 hover:border-zinc-800'
+                              ? 'bg-sky-600 text-white border-sky-400 shadow-md shadow-sky-600/30'
+                              : 'bg-black text-slate-300 border-zinc-800 hover:border-zinc-700 hover:text-white'
                           }`}
                         >
                           {d}
