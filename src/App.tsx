@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { startRealVoiceTyping } from './utils/voiceTyping';
 import { 
   GraduationCap, 
   Flame, 
@@ -1779,23 +1780,25 @@ export default function App() {
                       onClick={() => {
                         if (isFeedbackRecording) return;
                         playSound('click');
-                        setIsFeedbackRecording(true);
-                        setFeedbackText("Listening... speak now in Hindi/English/Bhojpuri...");
+                        const initial = feedbackText;
                         
-                        const phrases = [
-                          "Sir, please add speed control (.25x, 1.5x, 2x) and download quality settings in video lecture panel.",
-                          "Class 10th Optics and Light refraction me mind maps compile karke PDF support de dijiye notes section me.",
-                          "Hum Bhojpuri me bolat bani, humra ke is platform pe offline test notes download kare ke pure options provide kijiye.",
-                          "Bharat AI evaluation me negative feedback tough kijiye, humein strict boards pattern validation chahiye!"
-                        ];
-
-                        const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-
-                        setTimeout(() => {
-                          setFeedbackText(randomPhrase);
-                          setIsFeedbackRecording(false);
-                          playSound('success');
-                        }, 2200);
+                        startRealVoiceTyping({
+                          language: 'en-IN',
+                          onStart: () => {
+                            setIsFeedbackRecording(true);
+                          },
+                          onResult: (spokenText) => {
+                            const textToSet = initial ? (initial + " " + spokenText) : spokenText;
+                            setFeedbackText(textToSet);
+                          },
+                          onError: () => {
+                            setIsFeedbackRecording(false);
+                          },
+                          onEnd: () => {
+                            setIsFeedbackRecording(false);
+                            playSound('success');
+                          }
+                        });
                       }}
                       className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-bold transition active:scale-95 cursor-pointer ${
                         isFeedbackRecording 
@@ -1804,7 +1807,7 @@ export default function App() {
                       }`}
                     >
                       <Mic className="w-3 h-3 text-red-500" />
-                      <span>{isFeedbackRecording ? 'Recording...' : 'Simulate Voice Input'}</span>
+                      <span>{isFeedbackRecording ? 'Listening...' : 'Voice Input'}</span>
                     </button>
                   </div>
                   

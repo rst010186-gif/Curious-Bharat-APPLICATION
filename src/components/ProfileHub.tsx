@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { startRealVoiceTyping } from '../utils/voiceTyping';
 import { 
   User, 
   Moon,
@@ -1261,24 +1262,25 @@ export default function ProfileHub({
                 onClick={() => {
                   if (localRecording) return;
                   playSound('click');
-                  setLocalRecording(true);
-                  setLocalFeedbackText("Listening... speak now in Hindi/English/Bhojpuri...");
+                  const initial = localFeedbackText;
                   
-                  // Bilingual simulation sequences of students
-                  const studentVoices = [
-                    "Sir, Class 10th Electricity me real-life curiosity-driven physical analogies badhaiye, thode tough numerical board exam pattern questions add kijiye.",
-                    "Hum Bhojpuri me bolat bani, humra ke is platform pe offline test notes download kare ke pure options provide kijiye.",
-                    "Bharat AI test reviews is excellent but make it more harsh and critical for wrong answer analyses so we learn properly!",
-                    "Please add a live inline color grading and text sizing customization directly in our educator portal draft cards."
-                  ];
-
-                  const randomPhrase = studentVoices[Math.floor(Math.random() * studentVoices.length)];
-
-                  setTimeout(() => {
-                    setLocalFeedbackText(randomPhrase);
-                    setLocalRecording(false);
-                    playSound('success');
-                  }, 2200);
+                  startRealVoiceTyping({
+                    language: 'en-IN',
+                    onStart: () => {
+                      setLocalRecording(true);
+                    },
+                    onResult: (spokenText) => {
+                      const textToSet = initial ? (initial + " " + spokenText) : spokenText;
+                      setLocalFeedbackText(textToSet);
+                    },
+                    onError: () => {
+                      setLocalRecording(false);
+                    },
+                    onEnd: () => {
+                      setLocalRecording(false);
+                      playSound('success');
+                    }
+                  });
                 }}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-bold transition active:scale-95 cursor-pointer ${
                   localRecording 
@@ -1287,12 +1289,12 @@ export default function ProfileHub({
                 }`}
               >
                 <Mic className="w-3 h-3 text-red-500" />
-                <span>{localRecording ? 'Recording...' : 'Simulate Voice Typing'}</span>
+                <span>{localRecording ? 'Listening...' : 'Voice Typing'}</span>
               </button>
             </div>
             
             <textarea
-              placeholder="Type your feedback here or click 'Simulate Voice Typing' to speak in Hindi/English/Bhojpuri..."
+              placeholder="Type your feedback here or click 'Voice Typing' to speak..."
               rows={3}
               value={localFeedbackText}
               onChange={(e) => setLocalFeedbackText(e.target.value)}

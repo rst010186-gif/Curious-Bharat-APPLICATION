@@ -23,6 +23,7 @@ import {
   ZoomOut
 } from 'lucide-react';
 import { Chapter, Flashcard, UserProgress } from '../types';
+import { startRealVoiceTyping } from '../utils/voiceTyping';
 import { playSound } from '../utils/audio';
 
 interface FlashcardsViewProps {
@@ -101,56 +102,28 @@ export default function FlashcardsView({
 
   // Voice Typing for new node creator
   const startVoiceTypingForNode = (target: 'front' | 'back') => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      if (target === 'front') {
-        setIsVoiceTypingFront(true);
-        setTimeout(() => {
-          setNewFront("What is the main role of Mitochondria in eukaryotic cells?");
-          setIsVoiceTypingFront(false);
-        }, 2000);
-      } else {
-        setIsVoiceTypingBack(true);
-        setTimeout(() => {
-          setNewBack("It acts as the powerhouse of the cell, synthesizing ATP through standard cellular respiration.");
-          setIsVoiceTypingBack(false);
-        }, 2000);
-      }
-      return;
-    }
+    const initial = target === 'front' ? newFront : newBack;
 
-    try {
-      const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = false;
-      rec.lang = 'en-IN';
-
-      rec.onstart = () => {
+    startRealVoiceTyping({
+      language: 'en-IN',
+      onStart: () => {
         if (target === 'front') setIsVoiceTypingFront(true);
         else setIsVoiceTypingBack(true);
-      };
-
-      rec.onresult = (e: any) => {
-        const text = e.results[0][0].transcript;
-        if (target === 'front') setNewFront(text);
-        else setNewBack(text);
-      };
-
-      rec.onerror = () => {
+      },
+      onResult: (spokenText) => {
+        const textToSet = initial ? (initial + " " + spokenText) : spokenText;
+        if (target === 'front') setNewFront(textToSet);
+        else setNewBack(textToSet);
+      },
+      onError: () => {
         if (target === 'front') setIsVoiceTypingFront(false);
         else setIsVoiceTypingBack(false);
-      };
-
-      rec.onend = () => {
+      },
+      onEnd: () => {
         if (target === 'front') setIsVoiceTypingFront(false);
         else setIsVoiceTypingBack(false);
-      };
-
-      rec.start();
-    } catch (err) {
-      setIsVoiceTypingFront(false);
-      setIsVoiceTypingBack(false);
-    }
+      }
+    });
   };
 
   // Add custom branch to the mind map
