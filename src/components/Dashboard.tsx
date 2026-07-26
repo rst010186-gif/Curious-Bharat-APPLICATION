@@ -42,6 +42,7 @@ import { getTenQuestions } from '../utils/quizGenerator';
 import FlashcardsView from './FlashcardsView';
 import HorizontalScrollContainer from './HorizontalScrollContainer';
 import { getProxiedImageUrl } from '../utils/imageUrl';
+import { startRealVoiceTyping } from '../utils/voiceTyping';
 
 interface DashboardProps {
   courses: Course[];
@@ -201,54 +202,25 @@ export default function Dashboard({
       return;
     }
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert(appLanguage === 'hi' 
-        ? "आपका ब्राउज़र स्पीच रिकग्निशन का समर्थन नहीं करता है।" 
-        : "Speech recognition is not supported on your browser or device."
-      );
-      return;
-    }
+    const initialTerm = searchTerm;
 
-    try {
-      const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = true;
-      rec.lang = appLanguage === 'hi' ? 'hi-IN' : 'en-IN';
-
-      searchRecognitionRef.current = rec;
-
-      rec.onstart = () => {
+    searchRecognitionRef.current = startRealVoiceTyping({
+      language: appLanguage === 'hi' ? 'hi-IN' : 'en-IN',
+      onStart: () => {
         setIsSearchListening(true);
-      };
-
-      rec.onresult = (e: any) => {
-        let transcriptStr = '';
-        for (let i = e.resultIndex; i < e.results.length; ++i) {
-          transcriptStr += e.results[i][0].transcript;
-        }
-        if (transcriptStr.trim()) {
-          setSearchTerm(transcriptStr);
-        }
-      };
-
-      rec.onerror = (err: any) => {
-        console.warn('Search speech recognition error:', err);
+      },
+      onResult: (spokenText) => {
+        const newTerm = initialTerm ? (initialTerm + " " + spokenText) : spokenText;
+        setSearchTerm(newTerm);
+      },
+      onError: (err) => {
+        setIsSearchListening(false);
+      },
+      onEnd: () => {
         setIsSearchListening(false);
         searchRecognitionRef.current = null;
-      };
-
-      rec.onend = () => {
-        setIsSearchListening(false);
-        searchRecognitionRef.current = null;
-      };
-
-      rec.start();
-    } catch (e) {
-      console.error("Search voice typing start failed:", e);
-      setIsSearchListening(false);
-      searchRecognitionRef.current = null;
-    }
+      }
+    });
   };
 
   // Simulation states

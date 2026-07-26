@@ -103,8 +103,26 @@ if (typeof window !== 'undefined') {
 
 export default function App() {
   const { isInstallable, installApp, isOffline, isPWA } = usePWA();
-  const [courses, setCourses] = useState<Course[]>(defaultCourses);
-  const [customization, setCustomization] = useState<AppCustomization>(defaultCustomization);
+  const [courses, setCourses] = useState<Course[]>(() => {
+    const saved = localStorage.getItem('curious_courses');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    return defaultCourses;
+  });
+  const [customization, setCustomization] = useState<AppCustomization>(() => {
+    const saved = localStorage.getItem('curious_customization');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed) return parsed;
+      } catch (e) {}
+    }
+    return defaultCustomization;
+  });
   const [currentView, setCurrentView] = useState<'dashboard' | 'chapter-study' | 'chapter-quiz' | 'chapter-flashcards' | 'admin' | 'ai' | 'feedback' | 'checkout'>('dashboard');
   const [activeTab, setActiveTab] = useState<'home' | 'batches' | 'practice' | 'ai' | 'profile'>('home');
   const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
@@ -138,7 +156,16 @@ export default function App() {
     }
     return INITIAL_PROGRESS;
   });
-  const [ownerProfile, setOwnerProfile] = useState<OwnerProfile>(INITIAL_OWNER_PROFILE);
+  const [ownerProfile, setOwnerProfile] = useState<OwnerProfile>(() => {
+    const saved = localStorage.getItem('curious_owner_profile');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed) return parsed;
+      } catch (e) {}
+    }
+    return INITIAL_OWNER_PROFILE;
+  });
   const [isAIOpen, setIsAIOpen] = useState<boolean>(false);
   const [preloadAIPrompt, setPreloadAIPrompt] = useState<{ mode: string; text: string } | undefined>(undefined);
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
@@ -424,7 +451,16 @@ export default function App() {
   };
 
   // Student Analysis Records
-  const [studentAnalysisRecords, setStudentAnalysisRecords] = useState<StudentAnalysisRecord[]>([]);
+  const [studentAnalysisRecords, setStudentAnalysisRecords] = useState<StudentAnalysisRecord[]>(() => {
+    const saved = localStorage.getItem('curious_student_analysis');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
+    }
+    return [];
+  });
 
   // Student Feedback modal state
   const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
@@ -1802,37 +1838,40 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Global Payment / Checkout Modal */}
+      {/* Global Payment / Checkout View - Full End to End Screen */}
       <AnimatePresence>
         {globalCheckoutCourse && (
-          <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col w-full h-full overflow-hidden">
             <motion.div
               initial={{ opacity: 0, scale: 0.98, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 15 }}
-              className="bg-zinc-950 border border-zinc-900 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+              className="bg-zinc-950 w-full h-full flex flex-col relative overflow-hidden"
             >
               {/* Header */}
-              <div className="p-5 border-b border-zinc-900 flex justify-between items-center bg-zinc-900/40">
+              <div className="p-4 sm:p-5 border-b border-zinc-900 flex justify-between items-center bg-zinc-900/60 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center text-yellow-400">
                     <CreditCard className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-white">Unlock Course Batch</h3>
-                    <p className="text-[10px] text-zinc-500">Secure Direct QR & UPI Verification Transfer</p>
+                    <h3 className="text-base font-black text-white flex items-center gap-2">
+                      <span>Unlock Course Batch</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/50 text-emerald-300 text-[10px] font-extrabold">VERIFIED DIRECT ENROLLMENT</span>
+                    </h3>
+                    <p className="text-xs text-zinc-300 font-medium">Secure Direct QR & UPI Verification Transfer</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setGlobalCheckoutCourse(null)}
-                  className="w-8 h-8 rounded-full bg-zinc-900 hover:bg-zinc-850 flex items-center justify-center text-zinc-400 hover:text-white transition cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 flex items-center justify-center text-zinc-300 hover:text-white transition cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Form & Transfer Container (Scrollable) */}
-              <div className="p-6 overflow-y-auto space-y-5 text-zinc-300">
+              {/* Form & Transfer Container (Scrollable Full Screen) */}
+              <div className="flex-1 p-4 sm:p-8 overflow-y-auto space-y-6 text-zinc-200 max-w-4xl mx-auto w-full">
                 {/* Brand-new Interactive 3D Price Tag Banner */}
                 <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-950/30 to-zinc-900/40 border border-amber-900/20 flex items-center justify-between relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl" />
@@ -2130,58 +2169,23 @@ export default function App() {
         </motion.div>
       )}
 
-      {/* Global Floating Bharat AI Assistant Modal Overlay */}
+      {/* Full Screen Bharat AI Assistant View */}
       <AnimatePresence>
         {isAIOpen && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-zinc-950 border border-zinc-850 w-full max-w-4xl h-[88vh] max-h-[800px] rounded-3xl overflow-hidden shadow-2xl flex flex-col relative"
-            >
-              {/* Modal Header bar */}
-              <div className="p-3.5 sm:p-4 border-b border-zinc-850 bg-zinc-900/40 flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8.5 h-8.5 rounded-xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center">
-                    <ThreeDElement type="futuristic_ai_robot" className="w-6 h-6" autoRotate={true} />
-                  </div>
-                  <div>
-                    <h3 className="text-xs sm:text-sm font-extrabold text-white flex items-center gap-1.5">
-                      <span>Bharat AI Mentor & Doubt Resolver</span>
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[9px] font-bold">LIVE 24x7</span>
-                    </h3>
-                    <p className="text-[10px] text-zinc-400 font-medium">Bilingual • Vernacular • Instant Board & NCERT Analysis</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    playSound('click');
-                    setIsAIOpen(false);
-                  }}
-                  className="w-8 h-8 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* AIAssistant Component inside Modal */}
-              <div className="flex-1 overflow-hidden p-2 sm:p-3">
-                <AIAssistant
-                  currentChapterTitle={selectedChapter?.title}
-                  isOpen={true}
-                  onClose={() => setIsAIOpen(false)}
-                  preloadedPrompt={preloadAIPrompt}
-                  onClearPreload={handleClearPreload}
-                  onIncrementDoubtsAsked={handleIncrementDoubts}
-                  appLanguage={appLanguage}
-                  inline={true}
-                  isDarkMode={isDarkMode}
-                  progress={progress}
-                  onUpdateProgress={saveProgressState}
-                />
-              </div>
-            </motion.div>
+          <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col w-full h-full overflow-hidden">
+            <AIAssistant
+              currentChapterTitle={selectedChapter?.title}
+              isOpen={true}
+              onClose={() => setIsAIOpen(false)}
+              preloadedPrompt={preloadAIPrompt}
+              onClearPreload={handleClearPreload}
+              onIncrementDoubtsAsked={handleIncrementDoubts}
+              appLanguage={appLanguage}
+              inline={false}
+              isDarkMode={isDarkMode}
+              progress={progress}
+              onUpdateProgress={saveProgressState}
+            />
           </div>
         )}
       </AnimatePresence>

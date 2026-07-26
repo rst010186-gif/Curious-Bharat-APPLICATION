@@ -318,22 +318,23 @@ export default function LecturePlayer({ chapter, studentName, isTeacher, onBack,
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header bar */}
-      <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
-        <div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-orange-400 font-mono">
-            {chapter.subject} • Class {chapter.classLevel}
-          </span>
-          <h2 className="text-lg font-extrabold text-white">{chapter.title} Lecture</h2>
+    <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col w-full h-full overflow-y-auto p-4 sm:p-8 text-zinc-200 font-sans">
+      <div className="max-w-6xl mx-auto w-full space-y-6 pb-12">
+        {/* Header bar */}
+        <div className="flex items-center justify-between bg-zinc-900/90 p-4 sm:p-5 rounded-2xl border border-zinc-800 shadow-xl shrink-0">
+          <div>
+            <span className="text-[10px] uppercase font-mono font-extrabold tracking-widest text-orange-300 bg-orange-950/90 px-2.5 py-0.5 rounded border border-orange-500/40">
+              {chapter.subject} • Class {chapter.classLevel}
+            </span>
+            <h2 className="text-base sm:text-lg font-black text-white mt-1">{chapter.title} Lecture</h2>
+          </div>
+          <button
+            onClick={onBack}
+            className="px-4 py-2 bg-zinc-950 border border-zinc-700/80 hover:bg-zinc-850 text-xs font-extrabold rounded-xl cursor-pointer text-zinc-100 hover:text-white transition shadow-sm flex items-center gap-2"
+          >
+            <span>Back</span>
+          </button>
         </div>
-        <button
-          onClick={onBack}
-          className="px-3 py-1.5 bg-zinc-950 border border-zinc-900 hover:border-zinc-700 text-xs font-bold rounded-xl cursor-pointer text-zinc-400 hover:text-white transition"
-        >
-          Back to Course
-        </button>
-      </div>
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1043,9 +1044,8 @@ export default function LecturePlayer({ chapter, studentName, isTeacher, onBack,
           </div>
 
         </div>
-
       </div>
-
+    </div>
     </div>
   );
 }

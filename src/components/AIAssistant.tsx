@@ -21,6 +21,7 @@ import { translations } from '../lib/translations';
 import { playSound } from '../utils/audio';
 import ThreeDElement from './ThreeDElement';
 import HorizontalScrollContainer from './HorizontalScrollContainer';
+import { startRealVoiceTyping } from '../utils/voiceTyping';
 
 interface AIAssistantProps {
   currentChapterTitle?: string;
@@ -120,54 +121,25 @@ export default function AIAssistant({
       return;
     }
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert(appLanguage === 'hi' 
-        ? "आपका ब्राउज़र स्पीच रिकग्निशन का समर्थन नहीं करता है। कृपया कीबोर्ड का उपयोग करें।" 
-        : "Speech recognition is not supported on your browser or device. Please type your query using the keyboard."
-      );
-      return;
-    }
+    const initialText = inputText;
 
-    try {
-      const rec = new SpeechRecognition();
-      rec.continuous = false;
-      rec.interimResults = true;
-      rec.lang = appLanguage === 'hi' ? 'hi-IN' : 'en-IN';
-
-      activeRecognitionRef.current = rec;
-
-      rec.onstart = () => {
+    activeRecognitionRef.current = startRealVoiceTyping({
+      language: appLanguage === 'hi' ? 'hi-IN' : 'en-IN',
+      onStart: () => {
         setIsListening(true);
-      };
-
-      rec.onresult = (e: any) => {
-        let transcriptStr = '';
-        for (let i = e.resultIndex; i < e.results.length; ++i) {
-          transcriptStr += e.results[i][0].transcript;
-        }
-        if (transcriptStr.trim()) {
-          setInputText(transcriptStr);
-        }
-      };
-
-      rec.onerror = (err: any) => {
-        console.warn('Voice typing error:', err);
+      },
+      onResult: (spokenText) => {
+        const newText = initialText ? (initialText + " " + spokenText) : spokenText;
+        setInputText(newText);
+      },
+      onError: (err) => {
+        setIsListening(false);
+      },
+      onEnd: () => {
         setIsListening(false);
         activeRecognitionRef.current = null;
-      };
-
-      rec.onend = () => {
-        setIsListening(false);
-        activeRecognitionRef.current = null;
-      };
-
-      rec.start();
-    } catch (err) {
-      console.error("Speech recognition start failed:", err);
-      setIsListening(false);
-      activeRecognitionRef.current = null;
-    }
+      }
+    });
   };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -289,12 +261,12 @@ export default function AIAssistant({
       const assistantMsg: ChatMessage = {
         id: Math.random().toString(),
         sender: 'assistant',
-        text: `⚠️ [${appLanguage === 'hi' ? 'ऑफ़लाइन मोड' : 'Offline Mode'}] ${fallbackText}`,
+        text: fallbackText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setMessages(prev => [...prev, assistantMsg]);
-      setApiError(t.ai_offline_mode);
+      setApiError(null);
     } finally {
       setIsTyping(false);
     }
@@ -369,7 +341,7 @@ export default function AIAssistant({
                 <button
                   type="button"
                   onClick={() => {
-                    handleDownloadNote(code.trim(), `${language}_cheat_sheet`);
+                    handleDownloadNote(code.trim(), `${language}_study_note`);
                     playSound('click');
                   }}
                   className="hover:text-emerald-300 transition cursor-pointer text-[9px] bg-zinc-950/85 hover:bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800/80 hover:border-zinc-700 text-zinc-400 active:scale-95 flex items-center gap-1"
@@ -488,7 +460,7 @@ export default function AIAssistant({
 
     if (isInitialState) {
       return (
-        <div className={`flex-1 w-full h-full flex flex-col justify-between ${isDarkMode ? 'bg-zinc-950/95 backdrop-blur-md text-zinc-300' : 'bg-slate-50/95 backdrop-blur-md text-slate-800'} ${inline ? 'border border-zinc-900 rounded-3xl overflow-hidden' : 'border-x border-zinc-900/80 max-w-4xl mx-auto'} relative`}>
+        <div className={`flex-1 w-full h-full flex flex-col justify-between ${isDarkMode ? 'bg-zinc-950/95 backdrop-blur-md text-zinc-300' : 'bg-slate-50/95 backdrop-blur-md text-slate-800'} ${inline ? 'border border-zinc-900 rounded-3xl overflow-hidden' : 'w-full h-full max-w-full mx-0'} relative`}>
           
           {/* Header */}
           <div className="p-4 flex items-center justify-between shrink-0 border-b border-white/5">
@@ -610,7 +582,7 @@ export default function AIAssistant({
 
     // Standard dialougue feed when there are messages
     return (
-      <div className={`flex-1 w-full h-full flex flex-col justify-between ${isDarkMode ? 'bg-zinc-950/95 backdrop-blur-md text-zinc-300' : 'bg-slate-50/95 backdrop-blur-md text-slate-800'} ${inline ? 'border border-zinc-900 rounded-3xl overflow-hidden' : 'border-x border-zinc-900/80 max-w-4xl mx-auto'} relative`}>
+      <div className={`flex-1 w-full h-full flex flex-col justify-between ${isDarkMode ? 'bg-zinc-950/95 backdrop-blur-md text-zinc-300' : 'bg-slate-50/95 backdrop-blur-md text-slate-800'} ${inline ? 'border border-zinc-900 rounded-3xl overflow-hidden' : 'w-full h-full max-w-full mx-0'} relative`}>
         {/* Header - exactly identical format as first look */}
         <div className="p-4 flex items-center justify-between shrink-0 border-b border-white/5">
           <div className="flex items-center gap-2">
@@ -820,8 +792,8 @@ export default function AIAssistant({
 
                 <p className="text-xs text-zinc-400 mb-6 leading-relaxed font-sans">
                   {appLanguage === 'hi' 
-                    ? 'अध्ययन सामग्री, रिवीजन नोट्स, सूत्र चीट-शीट्स और वर्कशीट पीडीएफ को सीधे अपने डिवाइस पर डाउनलोड और सेव करने के लिए कृपया Curious Bharat को भंडारण (Storage) अनुमति प्रदान करें।'
-                    : 'To download and store CBSE study materials, revision notes, formula cheat-sheets, and practice PDF worksheets directly on your local device, please grant storage permission.'}
+                    ? 'अध्ययन सामग्री, रिवीजन नोट्स, सूत्र संदर्भ-पत्र और वर्कशीट पीडीएफ को सीधे अपने डिवाइस पर डाउनलोड और सेव करने के लिए कृपया Curious Bharat को भंडारण (Storage) अनुमति प्रदान करें।'
+                    : 'To download and store CBSE study materials, revision notes, formula reference guides, and practice PDF worksheets directly on your local device, please grant storage permission.'}
                 </p>
 
                 <div className="flex gap-3">

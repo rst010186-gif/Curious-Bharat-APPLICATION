@@ -36,14 +36,6 @@ export default function BottomNavigation({
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-lg border-t border-zinc-850 z-40 shadow-2xl transition-all duration-300 safe-pb">
-      {/* Offline Alert Strip */}
-      {!isOnline && (
-        <div className="bg-red-950/60 border-b border-red-900/60 text-red-400 py-1 px-3 text-[10px] font-mono font-semibold tracking-wider flex items-center justify-center gap-1.5 text-center">
-          <ShieldAlert className="w-3.5 h-3.5 animate-pulse shrink-0" />
-          <span>{appLanguage === 'hi' ? 'ऑफ़लाइन-प्रथम मोड सक्रिय — स्थानीय डेटाबेस उपयोग में है' : 'OFFLINE MODE ACTIVE — LOCAL STORAGE SYNCED'}</span>
-        </div>
-      )}
-
       <div className="max-w-xl mx-auto flex justify-around items-center h-16 px-2 sm:px-4">
         {tabs.map((tab) => {
           const Icon = tab.icon;

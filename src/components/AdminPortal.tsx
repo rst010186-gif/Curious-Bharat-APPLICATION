@@ -1168,7 +1168,8 @@ export default function AdminPortal({
   const selectedTopicObj = selectedChapterObj?.topics?.find(tp => tp.id === selectedTopicId);
 
   return (
-    <div className="bg-black border border-zinc-850 md:border-zinc-800 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[92vh] md:h-[800px] max-w-6xl mx-auto font-sans text-zinc-300">
+    <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col w-full h-full overflow-y-auto p-3 sm:p-6 font-sans text-zinc-200">
+      <div className="max-w-7xl mx-auto w-full bg-zinc-950 border border-zinc-800/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row min-h-[90vh] text-zinc-200 my-auto">
       
       {/* MOBILE-ONLY TOP HEADER & NAVIGATION STRIP */}
       <div className="md:hidden bg-zinc-950 border-b border-zinc-900 p-4 space-y-3 shrink-0">
@@ -4692,6 +4693,7 @@ export default function AdminPortal({
 
       </div>
 
+      </div>
     </div>
   );
 }

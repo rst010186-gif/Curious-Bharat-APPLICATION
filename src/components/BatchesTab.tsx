@@ -307,28 +307,33 @@ export default function BatchesTab({
       )}
 
       {selectedTopic ? (
-        // LEVEL 3: Active Topic Study Tabs inside Batches
-        <div className="space-y-6 animate-fadeIn">
-          {/* Breadcrumb controls */}
-          <div className="flex flex-wrap items-center gap-2">
+        // LEVEL 3: Active Topic Study Tabs inside Batches - Full Screen End-to-End View
+        <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col w-full h-full overflow-y-auto p-4 sm:p-8 animate-fadeIn">
+          {/* Top Fixed Control Bar */}
+          <div className="flex items-center justify-between gap-3 border-b border-zinc-900 pb-4 mb-6 shrink-0">
             <button
               onClick={() => { playSound('click'); setSelectedTopic(null); }}
-              className="px-3 py-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+              className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <ArrowLeft className="w-4 h-4 text-zinc-300" />
               <span>Back to {selectedChapter.title}</span>
             </button>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-amber-950/80 border border-amber-500/50 text-amber-300 rounded-full text-[10px] font-extrabold font-mono tracking-widest uppercase">
+                FULL SCREEN BHARAT CHAMBER
+              </span>
+            </div>
           </div>
 
-          <div className="bg-zinc-950 border border-zinc-900 rounded-3xl p-6 space-y-6">
-            <div>
-              <span className="text-[10px] bg-zinc-900 border border-zinc-850 text-amber-500 px-2.5 py-1 rounded-lg font-mono font-bold tracking-widest uppercase mb-1 inline-block">
+          <div className="flex-1 max-w-5xl mx-auto w-full space-y-6">
+            <div className="space-y-1">
+              <span className="text-[10px] bg-amber-950/80 border border-amber-500/50 text-amber-300 px-3 py-1 rounded-full font-mono font-extrabold tracking-widest uppercase mb-1 inline-flex items-center gap-1.5 shadow-sm">
                 🇮🇳 BHARAT STUDY CHAMBER
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight">
                 {selectedTopic.title}
               </h2>
-              <p className="text-xs text-zinc-400 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-zinc-300 mt-1 max-w-3xl leading-relaxed">
                 {selectedTopic.description}
               </p>
             </div>
@@ -735,93 +740,103 @@ export default function BatchesTab({
           </div>
         </div>
       ) : selectedChapter ? (
-        // LEVEL 2: Chapter Folder Topics drilling inside Batches
-        <div className="space-y-4 animate-fadeIn">
-          <div className="flex items-center justify-between">
+        // LEVEL 2: Chapter Folder Topics drilling inside Batches - Full Screen End-to-End View
+        <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col w-full h-full overflow-y-auto p-4 sm:p-8 animate-fadeIn">
+          {/* Top Fixed Control Bar */}
+          <div className="flex items-center justify-between gap-3 border-b border-zinc-900 pb-4 mb-6 shrink-0">
             <button
               onClick={() => { playSound('click'); setSelectedChapterState(null); }}
-              className="px-3 py-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-900 text-zinc-400 hover:text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+              className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to chapters playlist</span>
+              <ArrowLeft className="w-4 h-4 text-zinc-300" />
+              <span>Back to Chapters Playlist</span>
             </button>
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <span className="p-2 bg-zinc-900 border border-zinc-850 text-white rounded-xl">
-              <BookOpen className="w-5 h-5 text-zinc-400" />
+            <span className="px-3 py-1 bg-teal-950/80 border border-teal-500/50 text-teal-300 rounded-full text-[10px] font-extrabold font-mono tracking-widest uppercase">
+              CHAPTER TOPICS EXPLORER
             </span>
-            <div>
-              <span className="text-[9px] uppercase tracking-widest text-zinc-500 font-extrabold block">
-                CHAPTER TOPICS IN "{selectedChapter.title}"
-              </span>
-              <h3 className="text-lg font-extrabold text-white">
-                Master Study Chapters & Topics
-              </h3>
-            </div>
           </div>
 
-          {(() => {
-            const topicsList = getChapterTopics(selectedChapter);
+          <div className="flex-1 max-w-5xl mx-auto w-full space-y-6">
+            <div className="flex items-center gap-3">
+              <span className="p-3 bg-zinc-900 border border-zinc-800 text-white rounded-2xl">
+                <BookOpen className="w-6 h-6 text-teal-400" />
+              </span>
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-teal-300 font-mono font-extrabold block">
+                  CHAPTER TOPICS IN "{selectedChapter.title}"
+                </span>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                  Master Study Chapters & Topics
+                </h3>
+              </div>
+            </div>
 
-            if (topicsList.length === 0) {
+            {(() => {
+              const topicsList = getChapterTopics(selectedChapter);
+
+              if (topicsList.length === 0) {
+                return (
+                  <div className="text-center py-12 rounded-2xl text-xs border bg-zinc-900/40 border-zinc-800 text-zinc-400">
+                    {appLanguage === 'hi' ? 'इस अध्याय फ़ोल्डर के अंदर अभी कोई विषय नहीं है।' : 'No nested topics uploaded inside this chapter folder yet.'}
+                  </div>
+                );
+              }
+
               return (
-                <div className="text-center py-10 rounded-2xl text-xs border bg-zinc-950 border-zinc-900 text-zinc-500">
-                  {appLanguage === 'hi' ? 'इस अध्याय फ़ोल्डर के अंदर अभी कोई विषय नहीं है।' : 'No nested topics uploaded inside this chapter folder yet.'}
+                <div className="space-y-3 animate-fadeIn">
+                  {topicsList.map(topic => (
+                    <div
+                      key={topic.id}
+                      onClick={() => { playSound('click'); setSelectedTopic(topic); }}
+                      className="rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 cursor-pointer group relative transition border bg-zinc-900/60 border-zinc-800 hover:border-teal-500/60 hover:bg-zinc-900"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border bg-zinc-950 border-zinc-800 group-hover:border-teal-500/50">
+                          <FileText className="w-5 h-5 text-teal-400 group-hover:scale-110 transition-transform" />
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-teal-300 bg-teal-950/80 px-2 py-0.5 rounded border border-teal-800/60">
+                            {appLanguage === 'hi' ? 'सक्रिय फ़ोल्डर विषय' : 'Active Folder Topic'}
+                          </span>
+                          <h4 className="text-base font-bold leading-tight text-white group-hover:text-teal-300 transition-colors">
+                            {topic.title}
+                          </h4>
+                          <p className="text-xs leading-normal line-clamp-1 text-zinc-300">
+                            {topic.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0 text-xs font-mono text-teal-300 font-bold bg-zinc-950 px-3 py-1.5 rounded-xl border border-zinc-800">
+                        <span className="hidden sm:inline">{appLanguage === 'hi' ? 'अध्ययन' : 'Study'}</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-teal-400" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               );
-            }
-
-            return (
-              <div className="space-y-3 animate-fadeIn">
-                {topicsList.map(topic => (
-                  <div
-                    key={topic.id}
-                    onClick={() => { playSound('click'); setSelectedTopic(topic); }}
-                    className="rounded-2xl p-4 flex items-center justify-between gap-4 cursor-pointer group relative transition border bg-zinc-950 border-zinc-900/85 hover:border-zinc-700"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-zinc-900 border-zinc-800">
-                        <FileText className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
-                      </div>
-                      <div className="space-y-0.5">
-                        <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-zinc-500">
-                          {appLanguage === 'hi' ? 'सक्रिय फ़ोल्डर विषय' : 'Active Folder Topic'}
-                        </span>
-                        <h4 className="text-sm font-bold leading-tight text-white group-hover:text-zinc-200">
-                          {topic.title}
-                        </h4>
-                        <p className="text-xs leading-normal line-clamp-1 text-zinc-500">
-                          {topic.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0 text-xs font-mono text-zinc-500">
-                      <span className="hidden sm:inline">{appLanguage === 'hi' ? 'अध्ययन' : 'Study'}</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform text-zinc-400" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            );
-          })()}
+            })()}
+          </div>
         </div>
       ) : selectedCourse ? (
-        // LEVEL 1: YouTube Playlist inside folder style view of Selected Batch
-        <div className="space-y-6 animate-fadeIn">
+        // LEVEL 1: YouTube Playlist inside folder style view of Selected Batch - Full Screen End-to-End View
+        <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col w-full h-full overflow-y-auto p-4 sm:p-8 animate-fadeIn">
           {/* Playlist Header Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-3 border-b border-zinc-900 pb-4 mb-6 shrink-0">
             <button
               onClick={() => { playSound('click'); setSelectedCourse(null); }}
-              className="px-3 py-2 rounded-xl border flex items-center justify-center transition hover:text-white bg-zinc-950 hover:bg-zinc-900 border-zinc-900 text-zinc-400 gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-white rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span className="text-xs font-bold font-sans">Back to Batches</span>
+              <ArrowLeft className="w-4 h-4 text-zinc-300" />
+              <span className="text-xs font-bold">Back to Batches</span>
             </button>
+            <span className="px-3 py-1 bg-amber-950/80 border border-amber-500/50 text-amber-300 rounded-full text-[10px] font-extrabold font-mono tracking-widest uppercase">
+              BATCH SYLLABUS PLAYLIST
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="flex-1 max-w-7xl mx-auto w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* LEFT COLUMN: YouTube Playlist Glass Metadata Card */}
             <div className="lg:col-span-4 lg:sticky lg:top-24">
               <div className="border rounded-3xl p-6 space-y-5 relative overflow-hidden shadow-2xl bg-zinc-950/70 backdrop-blur-md border-zinc-900/80 text-white">
@@ -992,6 +1007,7 @@ export default function BatchesTab({
                 ))
               )}
             </div>
+          </div>
           </div>
         </div>
       ) : (
@@ -1197,15 +1213,15 @@ export default function BatchesTab({
                         {/* Batch Details */}
                         <div className="space-y-2">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[9px] bg-zinc-900 border border-zinc-850 px-2.5 py-0.5 rounded-lg text-zinc-400 font-extrabold font-mono tracking-wider">
+                            <span className="text-[9px] bg-zinc-900 border border-zinc-700/80 px-2.5 py-0.5 rounded-lg text-zinc-100 font-extrabold font-mono tracking-wider shadow-sm">
                               {course.subject === 'Physics' && appLanguage === 'hi' ? 'भौतिकी' : course.subject === 'Chemistry' && appLanguage === 'hi' ? 'रसायन विज्ञान' : course.subject === 'Biology' && appLanguage === 'hi' ? 'जीव विज्ञान' : course.subject}
                             </span>
-                            <span className="text-[9px] bg-zinc-900 border border-zinc-850 px-2.5 py-0.5 rounded-lg text-zinc-400 font-extrabold font-mono tracking-wider">
+                            <span className="text-[9px] bg-zinc-900 border border-zinc-700/80 px-2.5 py-0.5 rounded-lg text-zinc-100 font-extrabold font-mono tracking-wider shadow-sm">
                               {classLevelStr}
                             </span>
                             {course.specialAIFeature && (
-                              <span className="text-[9px] bg-indigo-500/10 border border-indigo-500/25 px-2.5 py-0.5 rounded-lg text-indigo-400 font-extrabold font-mono tracking-wider flex items-center gap-1 animate-pulse">
-                                <Sparkles className="w-2.5 h-2.5" /> PREMIUM AI BATCH
+                              <span className="text-[9px] bg-indigo-950/90 border border-indigo-500/60 px-2.5 py-0.5 rounded-lg text-indigo-300 font-extrabold font-mono tracking-wider flex items-center gap-1 shadow-sm">
+                                <Sparkles className="w-2.5 h-2.5 text-amber-300" /> PREMIUM AI BATCH
                               </span>
                             )}
                           </div>

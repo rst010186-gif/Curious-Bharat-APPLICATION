@@ -4,23 +4,24 @@
   body {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #E2F2FE !important;
-    background-image: linear-gradient(180deg, #CEEBFF 0%, #E6F4FE 30%, #F4FAFF 65%, #FFFFFF 100%) !important;
+    background-color: #060B15 !important;
+    background-image: linear-gradient(180deg, #060B15 0%, #081020 50%, #0A1428 100%) !important;
     background-attachment: fixed !important;
-    color: #0F172A !important;
+    color: #FFFFFF !important;
   }
 }
 
 /* ==========================================================
-   SIGNATURE LIGHT SKY BLUE GRADIENT THEME (SINGLE THEME)
+   SIGNATURE DARK NAVY & ELECTRIC ROYAL BLUE THEME
    ========================================================== */
 body, body.light, body.dark {
-  background-color: #E2F2FE !important;
-  background-image: linear-gradient(180deg, #CEEBFF 0%, #E6F4FE 30%, #F4FAFF 65%, #FFFFFF 100%) !important;
+  background-color: #060B15 !important;
+  background-image: linear-gradient(180deg, #060B15 0%, #081020 50%, #0A1428 100%) !important;
   background-attachment: fixed !important;
-  color: #0F172A !important;
+  color: #FFFFFF !important;
 }
 
+/* Primary Card & Container Surfaces */
 .bg-black,
 .bg-zinc-950,
 .bg-zinc-900,
@@ -42,173 +43,139 @@ aside,
 .bg-zinc-900\/90,
 .bg-zinc-950\/70,
 .bg-zinc-900\/30 {
-  background-color: #FFFFFF !important;
-  color: #0F172A !important;
-  border-color: #E2E8F0 !important;
-  box-shadow: 0 4px 20px -2px rgba(2, 132, 199, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.03) !important;
+  background-color: #0F182A !important;
+  color: #FFFFFF !important;
+  border-color: #1E2D4A !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Subtle surfaces */
+/* Secondary & Subtle Inner Surfaces */
 .bg-zinc-50,
 .bg-slate-50,
 .bg-slate-100,
 .bg-zinc-800,
 .bg-zinc-850,
 .bg-zinc-900\/10 {
-  background-color: #F1F5F9 !important;
-  color: #0F172A !important;
+  background-color: #162238 !important;
+  color: #F8FAFC !important;
 }
 
-/* Special Profile Hub Overrides in Light Mode */
-body.light #profile-hub-root {
-  background-color: #F9F9FB !important;
-  border-color: #E5E5E5 !important;
+/* Profile Hub Surfaces */
+#profile-hub-root {
+  background-color: #060B15 !important;
+  border-color: #1E2D4A !important;
 }
 
-body.light #profile-hub-root .bg-zinc-950,
-body.light #profile-hub-root .bg-zinc-900,
-body.light #profile-hub-root .bg-zinc-900\/30,
-body.light #profile-hub-root .bg-zinc-900\/60 {
-  background-color: #FFFFFF !important;
-  border-color: #E5E5E5 !important;
-  color: #111111 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
-}
-
-body.light #profile-hub-root .text-white,
-body.light #profile-hub-root .text-zinc-100,
-body.light #profile-hub-root .text-zinc-200,
-body.light #profile-hub-root .text-zinc-300,
-body.light #profile-hub-root .text-zinc-400 {
-  color: #111111 !important;
-}
-
-body.light #profile-hub-root .text-zinc-500,
-body.light #profile-hub-root .text-slate-400,
-body.light #profile-hub-root .text-slate-500 {
-  color: #E50914 !important;
-}
-
-body.light #profile-hub-root button.bg-white {
-  background-color: #E50914 !important;
+#profile-hub-root .bg-zinc-950,
+#profile-hub-root .bg-zinc-900,
+#profile-hub-root .bg-zinc-900\/30,
+#profile-hub-root .bg-zinc-900\/60 {
+  background-color: #0F182A !important;
+  border-color: #1E2D4A !important;
   color: #FFFFFF !important;
-  border-color: #E50914 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-body.light #profile-hub-root button.bg-white:hover {
-  background-color: #B20710 !important;
+#profile-hub-root .text-white,
+#profile-hub-root .text-zinc-100,
+#profile-hub-root .text-zinc-200,
+#profile-hub-root .text-zinc-300,
+#profile-hub-root .text-zinc-400 {
+  color: #FFFFFF !important;
 }
 
-body.light #profile-hub-root input,
-body.light #profile-hub-root select {
-  background-color: #FFFFFF !important;
-  border-color: #DCDCDC !important;
-  color: #111111 !important;
+#profile-hub-root input,
+#profile-hub-root select {
+  background-color: #0B1322 !important;
+  border-color: #1E2D4A !important;
+  color: #FFFFFF !important;
 }
 
 /* Card Borders */
-body.light .border-zinc-900,
-body.light .border-zinc-850,
-body.light .border-zinc-800,
-body.light .border-zinc-800\/80,
-body.light .border-zinc-900\/60,
-body.light .border-zinc-900\/80,
-body.light .border-zinc-900\/85,
-body.light .border-zinc-700,
-body.light .border-zinc-850\/80,
-body.light .border-white\/10,
-body.light .border-zinc-900\/80 {
-  border-color: #E5E5E5 !important;
+.border-zinc-900,
+.border-zinc-850,
+.border-zinc-800,
+.border-zinc-800\/80,
+.border-zinc-900\/60,
+.border-zinc-900\/80,
+.border-zinc-900\/85,
+.border-zinc-700,
+.border-zinc-850\/80,
+.border-white\/10,
+.border-slate-200,
+.border-sky-200 {
+  border-color: #1E2D4A !important;
 }
 
 /* Dividers */
-body.light hr,
-body.light .divide-y > *,
-body.light .border-t,
-body.light .border-b {
-  border-color: #EAEAEA !important;
+hr,
+.divide-y > *,
+.border-t,
+.border-b {
+  border-color: #1A2844 !important;
 }
 
-/* High Legibility text overrides - selective to safeguard readability */
-body.light .text-white:not(button):not(button *):not(.bg-white *):not(.badge *):not(.active-tab *):not(.btn *):not([class*="bg-teal-"]):not([class*="bg-emerald-"]):not([class*="bg-blue-"]):not([class*="bg-indigo-"]):not([class*="bg-red-"]):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-orange-"]):not([class*="bg-cyan-"]):not(.xp-badge *):not(.active-pill *),
-body.light .text-zinc-100:not(button):not(button *):not(.bg-white *):not(.badge *):not(.active-tab *):not(.btn *):not([class*="bg-teal-"]):not([class*="bg-emerald-"]):not([class*="bg-blue-"]):not([class*="bg-indigo-"]):not([class*="bg-red-"]):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-orange-"]):not([class*="bg-cyan-"]):not(.xp-badge *),
-body.light .text-zinc-200:not(button):not(button *):not(.bg-white *):not(.badge *):not(.active-tab *):not(.btn *):not([class*="bg-teal-"]):not([class*="bg-emerald-"]):not([class*="bg-blue-"]):not([class*="bg-indigo-"]):not([class*="bg-red-"]):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-orange-"]):not([class*="bg-cyan-"]),
-body.light .text-zinc-300:not(button):not(button *):not(.bg-white *):not(.badge *):not(.active-tab *):not(.btn *):not([class*="bg-teal-"]):not([class*="bg-emerald-"]):not([class*="bg-blue-"]):not([class*="bg-indigo-"]):not([class*="bg-red-"]):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-orange-"]):not([class*="bg-cyan-"]),
-body.light .text-slate-100:not(button):not(button *):not(.bg-white *):not(.badge *):not(.active-tab *):not(.btn *):not([class*="bg-teal-"]):not([class*="bg-emerald-"]):not([class*="bg-blue-"]):not([class*="bg-indigo-"]):not([class*="bg-red-"]):not([class*="bg-amber-"]):not([class*="bg-yellow-"]):not([class*="bg-orange-"]):not([class*="bg-cyan-"]),
-body.light .text-slate-900,
-body.light .text-slate-800,
-body.light .text-slate-700,
-body.light .text-slate-600 {
-  color: #111111 !important;
-}
-
-/* Active Highlight Safeguards */
-body.light button.bg-white,
-body.light .bg-white.text-white,
-body.light .active-pill,
-body.light .active-tab {
+/* High Legibility text overrides */
+.text-slate-900,
+.text-slate-800,
+.text-slate-700,
+.text-zinc-900,
+.text-black {
   color: #FFFFFF !important;
 }
 
-body.light button.bg-white *,
-body.light .bg-white.text-white *,
-body.light .active-pill *,
-body.light .active-tab * {
-  color: #FFFFFF !important;
+/* Secondary & Subtitle Text (Soft Slate Gray) */
+.text-zinc-400,
+.text-zinc-500,
+.text-slate-500,
+.text-slate-600 {
+  color: #94A3B8 !important;
 }
 
-/* Secondary & Subtitle Text (charcoal-gray) */
-body.light .text-zinc-400,
-body.light .text-zinc-500,
-body.light .text-slate-400,
-body.light .text-slate-500 {
-  color: #555555 !important;
-}
-
-/* Disabled/Muted text */
-body.light .text-zinc-600,
-body.light .text-slate-300,
-body.light .text-zinc-500\/40 {
-  color: #888888 !important;
+/* Muted / Disabled text */
+.text-zinc-600,
+.text-slate-300,
+.text-zinc-500\/40 {
+  color: #64748B !important;
 }
 
 /* Hover States */
-body.light .hover\:bg-zinc-900:hover,
-body.light .hover\:bg-zinc-800:hover,
-body.light .hover\:bg-zinc-850:hover,
-body.light .hover\:bg-slate-50:hover {
-  background-color: #F5F5F7 !important;
-  color: #111111 !important;
+.hover\:bg-zinc-900:hover,
+.hover\:bg-zinc-800:hover,
+.hover\:bg-zinc-850:hover,
+.hover\:bg-slate-50:hover {
+  background-color: #1A2844 !important;
+  color: #FFFFFF !important;
 }
 
-/* Input Fields */
-body.light input,
-body.light select,
-body.light textarea {
-  background-color: #FFFFFF !important;
-  color: #111111 !important;
-  border-color: #DCDCDC !important;
+/* Input Fields & Selects */
+input,
+select,
+textarea {
+  background-color: #0B1322 !important;
+  color: #FFFFFF !important;
+  border-color: #1E2D4A !important;
 }
 
-body.light input::placeholder,
-body.light select::placeholder,
-body.light textarea::placeholder {
-  color: #888888 !important;
+input::placeholder,
+select::placeholder,
+textarea::placeholder {
+  color: #64748B !important;
 }
 
 /* ==========================================================
    DYNAMIC COLOR PALETTES FOR COMPLETE PLATFORM REPAINTING
    ========================================================== */
 
-/* 1. UNIFIED LIGHT SKY BLUE PALETTE */
+/* 1. DARK NAVY & ELECTRIC ROYAL BLUE PALETTE (DEFAULT) */
 body,
 body.dark,
 body.light {
-  --primary-accent: #0088FF;
-  --primary-hover: #0070E0;
-  --secondary-accent: #0284C7;
-  --card-bg: #FFFFFF;
-  --body-bg: #E2F2FE;
+  --primary-accent: #2563EB;
+  --primary-hover: #1D4ED8;
+  --secondary-accent: #3B82F6;
+  --card-bg: #0F182A;
+  --body-bg: #060B15;
 }
 
 /* 2. MIDNIGHT CYBERPUNK (NEON CYAN & VIOLET) */

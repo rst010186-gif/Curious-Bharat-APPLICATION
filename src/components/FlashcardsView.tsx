@@ -188,10 +188,10 @@ export default function FlashcardsView({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-24 text-zinc-300 font-sans">
-      
+    <div className={embedded ? "w-full space-y-6 text-zinc-200 font-sans" : "fixed inset-0 z-50 bg-zinc-950 flex flex-col w-full h-full overflow-y-auto p-4 sm:p-8 text-zinc-200 font-sans"}>
+      <div className="max-w-5xl mx-auto w-full space-y-6 pb-12">
       {/* Mind Map Header */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-zinc-950 p-4 rounded-2xl border border-zinc-900 shadow-xl gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-zinc-900/90 p-4 sm:p-5 rounded-2xl border border-zinc-800 shadow-xl gap-3">
         <div className="flex items-center gap-3">
           {!embedded && onBack && (
             <button
@@ -199,17 +199,17 @@ export default function FlashcardsView({
                 playSound('click');
                 onBack();
               }}
-              className="p-2.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-zinc-400 hover:text-white rounded-xl cursor-pointer transition shrink-0"
+              className="p-3 bg-zinc-950 hover:bg-zinc-850 border border-zinc-700/80 text-zinc-200 hover:text-white rounded-xl cursor-pointer transition shrink-0 shadow-sm"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
           )}
           <div className="text-left">
-            <span className="text-[10px] uppercase tracking-widest font-black text-blue-400 flex items-center gap-1">
-              <Workflow className="w-3 h-3 text-blue-400 animate-pulse" />
-              Concept Mind Map
+            <span className="text-[10px] uppercase tracking-widest font-black text-blue-200 bg-blue-950/90 px-2 py-0.5 rounded border border-blue-500/40 flex items-center gap-1 w-max">
+              <Workflow className="w-3 h-3 text-blue-300 animate-pulse" />
+              Concept Mind Map & Flashcards
             </span>
-            <h3 className="text-sm font-bold text-white line-clamp-1">{chapter.title}</h3>
+            <h3 className="text-base font-black text-white line-clamp-1 mt-1">{chapter.title}</h3>
           </div>
         </div>
 
@@ -670,6 +670,7 @@ export default function FlashcardsView({
         </div>
       )}
 
+      </div>
     </div>
   );
 }
